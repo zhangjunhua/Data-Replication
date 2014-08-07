@@ -31,8 +31,7 @@ import newClass.Tasks;
 import newClass.Tasks.Task;
 
 /**
- * @author Admin
- *
+ * @author Admin use git
  */
 public class DR {
 	static DataSets dataSets = DataSets.getInstanceofDataSets();
@@ -44,49 +43,49 @@ public class DR {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		//224
+		// 224
 		{
-			int[] dcnum={5,10,25};
-			for(int i=0;i<dcnum.length;i++){
-				R.maxDCnum=dcnum[i];
-				R.minDCnum=dcnum[i];
-				R.maxiDSnum=30;
-				R.miniDSnum=30;
+			int[] dcnum = { 5, 10, 25 };
+			for (int i = 0; i < dcnum.length; i++) {
+				R.maxDCnum = dcnum[i];
+				R.minDCnum = dcnum[i];
+				R.maxiDSnum = 30;
+				R.miniDSnum = 30;
 			}
 		}
-		//225
+		// 225
 		{
-			int[] dcnum={15,20};
-			for(int i=0;i<dcnum.length;i++){
-				R.maxDCnum=dcnum[i];
-				R.minDCnum=dcnum[i];
-				R.maxiDSnum=30;
-				R.miniDSnum=30;
+			int[] dcnum = { 15, 20 };
+			for (int i = 0; i < dcnum.length; i++) {
+				R.maxDCnum = dcnum[i];
+				R.minDCnum = dcnum[i];
+				R.maxiDSnum = 30;
+				R.miniDSnum = 30;
 			}
 		}
-		//227
+		// 227
 		{
-			int[] dsnum={10,20,50};
-			for(int i=0;i<dsnum.length;i++){
-				R.maxiDSnum=dsnum[i];
-				R.miniDSnum=dsnum[i];
-				R.maxDCnum=15;
-				R.minDCnum=15;
+			int[] dsnum = { 10, 20, 50 };
+			for (int i = 0; i < dsnum.length; i++) {
+				R.maxiDSnum = dsnum[i];
+				R.miniDSnum = dsnum[i];
+				R.maxDCnum = 15;
+				R.minDCnum = 15;
 			}
 		}
-		//229
+		// 229
 		{
-			int[] dsnum={30,40};
-			for(int i=0;i<dsnum.length;i++){
-				R.maxiDSnum=dsnum[i];
-				R.miniDSnum=dsnum[i];
-				R.maxDCnum=15;
-				R.minDCnum=15;
+			int[] dsnum = { 30, 40 };
+			for (int i = 0; i < dsnum.length; i++) {
+				R.maxiDSnum = dsnum[i];
+				R.miniDSnum = dsnum[i];
+				R.maxDCnum = 15;
+				R.minDCnum = 15;
 			}
 		}
-		
-		R.maxTnum=R.maxiDSnum/2;
-		R.minTnum=R.maxTnum;
+
+		R.maxTnum = R.maxiDSnum / 2;
+		R.minTnum = R.maxTnum;
 		// ================无副本策略=================
 		dataSets = DataSets.getNewInstanceofDataSets();
 		tasks = Tasks.getNewInstanceofTasks();
@@ -567,23 +566,24 @@ public class DR {
 						double sumtranscost = 0;
 						String tdc = cloud.getDataCenter(j).getName();
 						int tID = t.getID();
-						S.Gene[] Sc = s.getSc();
 						S.Gene[] Pa = s.getPa();
-						for (int k = 0; k < Sc[tID - 1].getBit().length; k++) {
-							if (Sc[tID - 1].getBit()[k] == 1) {
-								int dID = DescripDSC[k];
-								String ddc = cloud.getDataCenter(
-										Pa[k].getValueofGene()).getName();
-								if (ddc.equals(tdc))
-									continue;
-								double bandwidth = cloud.getBandWidth(tdc, ddc);
-								sumcost += dataSets.getDataset(dID)
-										.getDatasize() / bandwidth;
-								sumtranscost += dataSets.getDataset(dID)
-										.getDatasize();
-								summovecost++;
-							}
-						}
+						
+						//找出最小的匹配
+//						for (int k = 0; k < Sc[tID - 1].getBit().length; k++) {
+//							if (Sc[tID - 1].getBit()[k] == 1) {
+//								int dID = DescripDSC[k];
+//								String ddc = cloud.getDataCenter(
+//										Pa[k].getValueofGene()).getName();
+//								if (ddc.equals(tdc))
+//									continue;
+//								double bandwidth = cloud.getBandWidth(tdc, ddc);
+//								sumcost += dataSets.getDataset(dID)
+//										.getDatasize() / bandwidth;
+//								sumtranscost += dataSets.getDataset(dID)
+//										.getDatasize();
+//								summovecost++;
+//							}
+//						}
 						if (mincost > sumcost) {
 							mincost = sumcost;
 							tmovecost = summovecost;
@@ -627,54 +627,11 @@ public class DR {
 				ArrayList<S> Ss = new ArrayList<S>();
 				for (S s : CH) {
 					if (random.nextDouble() < R.variation) {
-						// SC变异阶段
 						try {
 							s = s.clone();
 						} catch (CloneNotSupportedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						}
-						boolean changed = false;
-						while (!changed) {
-							changed = true;
-							strategies.DR.Strategy.S.Gene[] Sc = s.getSc();
-							int p = random.nextInt(ScCHROMOSOMELENGTH
-									* ScGENELENGTH) + 1;
-							int t = (p - 1) / ScGENELENGTH;
-							int d = (p - 1) % ScGENELENGTH;
-							int start, end;
-							for (start = d; start >= 0; start--)
-								if (DescripDSC[start] != DescripDSC[d]) {
-									start++;
-									break;
-								}
-							for (end = d; end < ScGENELENGTH; end++)
-								if (DescripDSC[end] != DescripDSC[d]) {
-									end--;
-									break;
-								}
-							if (start < 0)
-								start++;
-							if (end >= ScGENELENGTH)
-								end--;
-							boolean zero = true;
-							for (int k = start; k <= end; k++)
-								if (Sc[t].getBit()[k] == 1)
-									zero = false;
-							if (Sc[t].getBit()[d] == 0) {
-								if (zero) {
-									changed = false;
-									continue;
-								} else {
-									for (int k = start; k <= end; k++)
-										Sc[t].reSet(k);
-									Sc[t].Set(d);
-								}
-							} else {
-								Sc[t].reSet(d);
-								Sc[t].Set(start
-										+ random.nextInt(end - start + 1));
-							}
 						}
 						// Pa变异阶段
 						S.Gene[] Pa = s.getPa();
@@ -705,7 +662,7 @@ public class DR {
 				for (S s : CH)
 					if (m < s.getTimecost())
 						m = s.getTimecost();
-				m++;//使结果不至于出现0或者null
+				m++;// 使结果不至于出现0或者null
 				double totaltime = 0;
 				for (S s : CH)
 					totaltime += m - s.getTimecost();
@@ -744,37 +701,13 @@ public class DR {
 					}
 
 					if (random.nextDouble() < R.chiasma) {// 交叉操作
-						S.Gene[] Sc1 = s1.getSc();
-						S.Gene[] Sc2 = s2.getSc();
-						int q = random.nextInt(ScCHROMOSOMELENGTH
-								* ScGENELENGTH) + 1;
-						int t = (q - 1) / ScGENELENGTH;
-						int d = (q - 1) % ScGENELENGTH;
-						int start;
-						for (start = d; start >= 0; start--)
-							if (DescripDSC[start] != DescripDSC[d]) {
-								start++;
-								break;
-							}
-						if (start < 0)
-							start++;
-						for (int k = start; k < ScGENELENGTH; k++) {
-							byte temp = Sc1[t].getBit()[k];
-							Sc1[t].getBit()[k] = Sc2[t].getBit()[k];
-							Sc2[t].getBit()[k] = temp;
-						}
-						for (int k = t + 1; k < ScCHROMOSOMELENGTH; k++) {
-							S.Gene temp = Sc1[k];
-							Sc1[k] = Sc2[k];
-							Sc2[k] = temp;
-						}
 						S.Gene[] Pa1 = s1.getPa();
 						S.Gene[] Pa2 = s2.getPa();
 
 						while (true) {
 							int p = random.nextInt(PaCHROMOSOMELENGTH
 									* PaGENENLENGTH) + 1;
-							d = (p - 1) / PaGENENLENGTH;
+							int d = (p - 1) / PaGENENLENGTH;
 							int c = (p - 1) % PaGENENLENGTH;
 
 							for (int k = c; k < PaGENENLENGTH; k++) {
@@ -869,31 +802,11 @@ public class DR {
 			private int movetimes = 0;
 			private double transcost = 0;
 			private double probilityl = 0, probilityr = 0;
-			private Gene[] Sc, Pa;
+			private Gene[] Pa;
 
 			public static S getRandomS() {
 				printlnLineInfo("getRandomS");
 				S randS = new S();
-				// Sc
-				printlnLineInfo("Sc");
-				Gene[] Sc = new Gene[ScCHROMOSOMELENGTH];
-				for (int i = 0; i < ScCHROMOSOMELENGTH; i++)
-					Sc[i] = new Gene(ScGENELENGTH);
-				for (int i = 0; i < ScCHROMOSOMELENGTH; i++) {
-					int pointer = 0;
-					for (int j = 0; j < dataSets.getDistinctDataNum(); j++) {
-						String name = dataSets.getDataset(j + 1).getName();
-						int num = dataSets.gettheCopyNum(name);
-						for (DataSet dataSet : tasks.getTask(i + 1)
-								.getInputDataSets()) {
-							if (dataSet.getName().equals(name)) {
-								Sc[i].Set(random.nextInt(num) + pointer);
-							}
-						}
-						pointer += num;
-					}
-				}
-				printlnLineInfo("Sc-out");
 				printlnLineInfo("Pa");
 				// Pa
 				Gene[] Pa = new Gene[PaCHROMOSOMELENGTH];
@@ -921,12 +834,10 @@ public class DR {
 							// 随机分配数据中心
 							int[] toBePa = new int[num];
 							for (int j = 0; j < num; ++j) {
-
 								boolean[] bool = new boolean[dcnum];
 								for (int k = 0; k < bool.length; k++)
 									bool[k] = false;
 								int testcount = 0;
-
 								toBePa[j] = random.nextInt(dcnum) + 1;
 								bool[toBePa[j] - 1] = true;
 								testcount++;
@@ -967,17 +878,9 @@ public class DR {
 							else {
 							}
 						}
-						// if (!jumpout && isPaValid(Pa))
-						// printlnLineInfo(jumpout);
-						// System.out.println(jumpout + "" + isPaValid(Pa));
-						// System.out.println(jumpout || !isPaValid(Pa));
-						// printlnLineInfo("Pa-loop");
 					} while (jumpout || !isPaValid(Pa));
 				}
-				printlnLineInfo("Pa-out");
-				randS.setSc(Sc);
 				randS.setPa(Pa);
-				printlnLineInfo("getRandomS-out");
 				return randS;
 			}
 
@@ -989,14 +892,10 @@ public class DR {
 			@Override
 			protected S clone() throws CloneNotSupportedException {
 				// TODO Auto-generated method stub
-				Gene[] newSc = new Gene[Sc.length];
-				for (int i = 0; i < Sc.length; i++)
-					newSc[i] = Sc[i].clone();
 				Gene[] newPa = new Gene[Pa.length];
 				for (int i = 0; i < Pa.length; i++)
 					newPa[i] = Pa[i].clone();
 				S s = new S();
-				s.setSc(newSc);
 				s.setPa(newPa);
 				return s;
 			}
@@ -1081,21 +980,6 @@ public class DR {
 			}
 
 			/**
-			 * @return the sc
-			 */
-			public Gene[] getSc() {
-				return Sc;
-			}
-
-			/**
-			 * @param sc
-			 *            the sc to set
-			 */
-			public void setSc(Gene[] sc) {
-				Sc = sc;
-			}
-
-			/**
 			 * @return the pa
 			 */
 			public Gene[] getPa() {
@@ -1111,7 +995,7 @@ public class DR {
 			}
 
 			public boolean isValid() {
-				return isScValid(Sc) && isPaValid(Pa);
+				return isPaValid(Pa);
 			}
 
 			public static boolean isScValid(Gene[] Sc) {
@@ -1180,12 +1064,6 @@ public class DR {
 			}
 
 			public boolean isTheSame(S s) {
-				for (int i = 0; i < Sc.length; i++) {
-					for (int j = 0; j < Sc[i].getBit().length; j++) {
-						if (Sc[i].getBit()[j] != s.getSc()[i].getBit()[j])
-							return false;
-					}
-				}
 				for (int i = 0; i < Pa.length; i++) {
 					for (int j = 0; j < Pa[i].getBit().length; j++) {
 						if (Pa[i].getBit()[j] != s.getPa()[i].getBit()[j])
