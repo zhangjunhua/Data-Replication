@@ -19,7 +19,7 @@ local.properties
 .settings/
 /data/
 /DataReplication/
-/xmlFolder/
+xmlFolder/
 *.txt
 *.jar
 *.java
