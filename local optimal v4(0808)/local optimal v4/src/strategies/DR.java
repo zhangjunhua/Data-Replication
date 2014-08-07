@@ -21,8 +21,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.bcel.internal.generic.DCMPG;
-
 import newClass.Cloud;
 import newClass.Cloud.DataCenter;
 import newClass.DataSets;
@@ -996,31 +994,6 @@ public class DR {
 
 			public boolean isValid() {
 				return isPaValid(Pa);
-			}
-
-			public static boolean isScValid(Gene[] Sc) {
-				for (int i = 0; i < Sc.length; i++) {
-					int pointer = 0;
-					for (int j = 0; j < dataSets.getDistinctDataNum(); j++) {
-						String name = dataSets.getDataset(j + 1).getName();
-						int num = dataSets.gettheCopyNum(name);
-						int counts = 0;
-						for (int k = 0; k < num; k++)
-							if (Sc[i].getState(pointer++) == 1)
-								counts++;
-						if (counts == 2)
-							return false;// 第一类无效解
-						boolean contain = false;
-						for (DataSet dataSet : tasks.getTask(i + 1)
-								.getInputDataSets())
-							if (dataSet.getName().equals(name))
-								contain = true;
-						if ((contain && counts == 0)
-								|| (!contain && counts > 0))
-							return false;// 第二类无效解
-					}
-				}
-				return true;
 			}
 
 			public static boolean isPaValid(Gene[] Pa) {
