@@ -23,10 +23,11 @@ local.properties
 *.txt
 *.jar
 *.java
-/local optimal v4(0808)/local optimal v4/src/Junit/
-/local optimal v4(0808)/local optimal v4/src/ReadWriteFlie/
-/local optimal v4(0808)/local optimal v4/src/utilities/
-/local optimal v4(0808)/local optimal v4/src/xmlGenerator/
+#/local optimal v4(0808)/local optimal v4/src/Junit/
+#/local optimal v4(0808)/local optimal v4/src/ReadWriteFlie/
+#/local optimal v4(0808)/local optimal v4/src/utilities/
+#/local optimal v4(0808)/local optimal v4/src/xmlGenerator/
+/local optimal v4(0808)/
 !/local optimal v4(0808)/local optimal v4/src/newClass/Cloud.java
 !/local optimal v4(0808)/local optimal v4/src/newClass/Tasks.java
 !/local optimal v4(0808)/local optimal v4/src/newClass/DataSets.java

@@ -31,6 +31,7 @@ public final class R {
 	public static double lamda = 0.87723824;
 	public static double variation = 0.23423242;
 	public static double chiasma = 0.88738278;
+	public static double variance = 0.001;
 
 	public static int genSize = 500;
 	public static int popSize = 50;

@@ -44,49 +44,49 @@ public class DR {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		//224
+		// 224
 		{
-			int[] dcnum={5,10,25};
-			for(int i=0;i<dcnum.length;i++){
-				R.maxDCnum=dcnum[i];
-				R.minDCnum=dcnum[i];
-				R.maxiDSnum=30;
-				R.miniDSnum=30;
+			int[] dcnum = { 5, 10, 25 };
+			for (int i = 0; i < dcnum.length; i++) {
+				R.maxDCnum = dcnum[i];
+				R.minDCnum = dcnum[i];
+				R.maxiDSnum = 30;
+				R.miniDSnum = 30;
 			}
 		}
-		//225
+		// 225
 		{
-			int[] dcnum={15,20};
-			for(int i=0;i<dcnum.length;i++){
-				R.maxDCnum=dcnum[i];
-				R.minDCnum=dcnum[i];
-				R.maxiDSnum=30;
-				R.miniDSnum=30;
+			int[] dcnum = { 15, 20 };
+			for (int i = 0; i < dcnum.length; i++) {
+				R.maxDCnum = dcnum[i];
+				R.minDCnum = dcnum[i];
+				R.maxiDSnum = 30;
+				R.miniDSnum = 30;
 			}
 		}
-		//227
+		// 227
 		{
-			int[] dsnum={10,20,50};
-			for(int i=0;i<dsnum.length;i++){
-				R.maxiDSnum=dsnum[i];
-				R.miniDSnum=dsnum[i];
-				R.maxDCnum=15;
-				R.minDCnum=15;
+			int[] dsnum = { 10, 20, 50 };
+			for (int i = 0; i < dsnum.length; i++) {
+				R.maxiDSnum = dsnum[i];
+				R.miniDSnum = dsnum[i];
+				R.maxDCnum = 15;
+				R.minDCnum = 15;
 			}
 		}
-		//229
+		// 229
 		{
-			int[] dsnum={30,40};
-			for(int i=0;i<dsnum.length;i++){
-				R.maxiDSnum=dsnum[i];
-				R.miniDSnum=dsnum[i];
-				R.maxDCnum=15;
-				R.minDCnum=15;
+			int[] dsnum = { 30, 40 };
+			for (int i = 0; i < dsnum.length; i++) {
+				R.maxiDSnum = dsnum[i];
+				R.miniDSnum = dsnum[i];
+				R.maxDCnum = 15;
+				R.minDCnum = 15;
 			}
 		}
-		
-		R.maxTnum=R.maxiDSnum/2;
-		R.minTnum=R.maxTnum;
+
+		R.maxTnum = R.maxiDSnum / 2;
+		R.minTnum = R.maxTnum;
 		// ================无副本策略=================
 		dataSets = DataSets.getNewInstanceofDataSets();
 		tasks = Tasks.getNewInstanceofTasks();
@@ -619,10 +619,7 @@ public class DR {
 			}
 			System.err.println("Create popSize random S Finished");
 
-			int curGen = 0;
-			while (curGen < R.maxGen) {
-				System.out.println("============curGen:" + curGen
-						+ "=============");
+			while (true) {
 				printlnLineInfo("变异阶段");
 				ArrayList<S> Ss = new ArrayList<S>();
 				for (S s : CH) {
@@ -705,7 +702,7 @@ public class DR {
 				for (S s : CH)
 					if (m < s.getTimecost())
 						m = s.getTimecost();
-				m++;//使结果不至于出现0或者null
+				m++;// 使结果不至于出现0或者null
 				double totaltime = 0;
 				for (S s : CH)
 					totaltime += m - s.getTimecost();
@@ -834,7 +831,7 @@ public class DR {
 				printlnLineInfo("交叉阶段->end");
 				// 将CH中各解按其对应的时间开销升序排序
 				// 从CH中除去后面genSize个解，
-				while (CH.size() > R.popSize) {
+				while (CH.size() >= R.popSize) {
 					int maxindex = 0;
 					maxtimecost = 0;
 					for (int k = 0; k < CH.size(); k++) {
@@ -843,7 +840,10 @@ public class DR {
 							maxtimecost = CH.get(k).getTimecost();
 						}
 					}
-					CH.remove(maxindex);
+					if (CH.size() > R.popSize)
+						CH.remove(maxindex);
+					else
+						break;
 				}
 				double mintimecost = Double.MAX_VALUE;
 				for (S s : CH)
@@ -851,7 +851,10 @@ public class DR {
 						mintimecost = s.getTimecost();
 				System.out.println("mintimecost:\t" + mintimecost
 						+ "\tmaxtimecost:" + maxtimecost);
-				curGen++;
+				//当获得的结果小于某个误差时，跳出循环-->
+				if((maxtimecost-0.001)<0||((maxtimecost-mintimecost)/maxtimecost)<R.variance)
+					break;
+				//当获得的结果小于某个误差时，跳出循环<--
 			}
 			return CH;
 		}
