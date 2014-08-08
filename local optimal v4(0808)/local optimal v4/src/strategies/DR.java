@@ -767,10 +767,22 @@ public class DR {
 						}
 						S.Gene[] Pa1 = s1.getPa();
 						S.Gene[] Pa2 = s2.getPa();
-
+						
+						
+						boolean[] ptemp=new boolean[PaCHROMOSOMELENGTH*PaGENENLENGTH+1];
 						while (true) {
 							int p = random.nextInt(PaCHROMOSOMELENGTH
 									* PaGENENLENGTH) + 1;
+							while (true) {
+								if(ptemp[p-1]){
+									p=random.nextInt(PaCHROMOSOMELENGTH
+											* PaGENENLENGTH) + 1;
+									continue;
+								}
+								ptemp[p-1]=true;
+								break;
+							}
+							
 							d = (p - 1) / PaGENENLENGTH;
 							int c = (p - 1) % PaGENENLENGTH;
 
@@ -811,7 +823,6 @@ public class DR {
 								Pa1[k] = Pa2[k];
 								Pa2[k] = temp;
 							}
-
 						}
 						if (!CHcontainsS(s1)) {
 							TimeAndTransAndMoveCosttotal(s1);
