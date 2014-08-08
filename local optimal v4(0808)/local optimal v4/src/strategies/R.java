@@ -15,16 +15,16 @@ public final class R {
 	public static double maxBandWidth = 10;
 	public static double minBandWith = 5;
 	// Êý¾Ý¼¯
-	public static int maxiDSnum = 20;
-	public static int miniDSnum = 20;
+	public static int maxiDSnum = 30;
+	public static int miniDSnum = 30;
 	public static double minDsSize = 17.6;
 	public static double maxDsSize = 26.4;
 
-	public static int maxCopyno = 2;
-	public static int minCopyno = 2;
+	public static int maxCopyno = 1;
+	public static int minCopyno = 1;
 
-	public static int maxTnum = 6;
-	public static int minTnum = 6;
+	public static int maxTnum = 15;
+	public static int minTnum = 15;
 	public static int maxIDS = 13;
 	public static int minIDS = 4;
 

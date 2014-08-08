@@ -122,13 +122,7 @@ public class DataSets {
 		public String toString() {
 			// TODO Auto-generated method stub
 			String string = new String();
-			string = "datasetname:" + name + "\tcopyno:" + CopyNo
-					+ "\tusedtasks:";
-			for (Task task : usedtasks) {
-				string += task.getName();
-			}
-			if (createtask != null)
-				string += "\tcreatetask:" + createtask.getName();
+			string = "datasetname:" + name + "\tcopyno:" + CopyNo;
 			string += "\tgt:" + gt + "\tdatasize:" + datasize + "\n";
 			return string;
 
@@ -187,7 +181,6 @@ public class DataSets {
 		 *            the usedtasks to set
 		 */
 		public void setUsedtasks(ArrayList<Task> usedtasks) {
-			this.usedtasks = usedtasks;
 			for (Task task : usedtasks) {
 				task.getInputDataSets().add(this);
 			}
@@ -207,7 +200,6 @@ public class DataSets {
 		public void setCreatetask(Task createtask) {
 			if (createtask == null)
 				return;
-			this.createtask = createtask;
 			this.createtask.getOutputDataSets().add(this);
 		}
 

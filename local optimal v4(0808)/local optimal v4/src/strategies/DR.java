@@ -43,90 +43,30 @@ public class DR {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		// 224
-		{
-			int[] dcnum = { 5, 10, 25 };
-			for (int i = 0; i < dcnum.length; i++) {
-				R.maxDCnum = dcnum[i];
-				R.minDCnum = dcnum[i];
-				R.maxiDSnum = 30;
-				R.miniDSnum = 30;
+
+		for (int testnum = 1; testnum <= 10; testnum++) {
+			readandwrite.readConfiguration();
+			CreateRandomData.newfolderandrstconf();
+			CreateRandomData.createData();
+			CreateRandomData.writeArgs();
+			for (int copyno = 1; copyno <= 10; copyno++) {
+				dataSets = DataSets.getNewInstanceofDataSets();
+				tasks = Tasks.getNewInstanceofTasks();
+				cloud = Cloud.getNewInstanceofCloud();
+
+				System.err.println("ReadData");
+				readandwrite.readDatas(copyno);
+				System.err.println("ReadData finished");
+
+				// 初始化Strategy
+				Strategy.initialize();
+
+				System.err.println("The Heredity Begin!");
+				ArrayList<Strategy.S> CH = Strategy.Heredity();
+				readandwrite.OutputTheResult(CH, copyno);
+				System.err.println("The Heredity End!");
 			}
 		}
-		// 225
-		{
-			int[] dcnum = { 15, 20 };
-			for (int i = 0; i < dcnum.length; i++) {
-				R.maxDCnum = dcnum[i];
-				R.minDCnum = dcnum[i];
-				R.maxiDSnum = 30;
-				R.miniDSnum = 30;
-			}
-		}
-		// 227
-		{
-			int[] dsnum = { 10, 20, 50 };
-			for (int i = 0; i < dsnum.length; i++) {
-				R.maxiDSnum = dsnum[i];
-				R.miniDSnum = dsnum[i];
-				R.maxDCnum = 15;
-				R.minDCnum = 15;
-			}
-		}
-		// 229
-		{
-			int[] dsnum = { 30, 40 };
-			for (int i = 0; i < dsnum.length; i++) {
-				R.maxiDSnum = dsnum[i];
-				R.miniDSnum = dsnum[i];
-				R.maxDCnum = 15;
-				R.minDCnum = 15;
-			}
-		}
-
-		R.maxTnum = R.maxiDSnum / 2;
-		R.minTnum = R.maxTnum;
-		// ================无副本策略=================
-		dataSets = DataSets.getNewInstanceofDataSets();
-		tasks = Tasks.getNewInstanceofTasks();
-		cloud = Cloud.getNewInstanceofCloud();
-		System.err.println("Start & CreateData");
-
-		readandwrite.readConfiguration();
-
-		CreateRandomData.newfolderandrstconf();
-		CreateRandomData.createData();
-		CreateRandomData.writeArgs();
-
-		System.err.println("ReadData");
-		readandwrite.readDatas2();
-		System.err.println("ReadData finished");
-
-		Strategy.initialize();
-
-		System.err.println("The Heredity Begin!");
-		ArrayList<Strategy.S> CH1 = Strategy.Heredity();
-		System.err.println("The Heredity End!");
-		// ==================本文策略==================
-		dataSets = DataSets.getNewInstanceofDataSets();
-		tasks = Tasks.getNewInstanceofTasks();
-		cloud = Cloud.getNewInstanceofCloud();
-		System.err.println("Start & CreateData");
-
-		System.err.println("ReadData");
-		readandwrite.readDatas();
-		System.err.println("ReadData finished");
-
-		Strategy.initialize();
-
-		System.err.println("The Heredity Begin!");
-		ArrayList<Strategy.S> CH2 = Strategy.Heredity();
-		System.err.println("The Heredity End!");
-		// ================hadoop=======================
-		Strategy.S hadoop = Strategy.S.getRandomS();
-		Strategy.TimeAndTransAndMoveCosttotal(hadoop);
-
-		readandwrite.OutputTheResult(CH1, CH2, hadoop);
 	}
 
 	public static class readandwrite {
@@ -171,6 +111,57 @@ public class DR {
 						datasetNodeList = docEle
 								.getElementsByTagName("dataset");
 						constructData(datasetNodeList);
+					}
+					dom = null;
+					dom = db.parse(R.FOLDER + R.inputFolder + R.CONTROL);
+					if (dom != null) {
+						Element element = dom.getDocumentElement();
+						datasetNodeList = element.getElementsByTagName("task");
+						constructControl(datasetNodeList);
+					}
+					dom = null;
+					dom = db.parse(R.FOLDER + R.inputFolder + R.CLOUD);
+					if (dom != null) {
+						Element element = dom.getDocumentElement();
+						NodeList dcnodList = element
+								.getElementsByTagName("datacenter");
+						constructCloud(dcnodList);
+						NodeList bwnoNodeList = element
+								.getElementsByTagName("bandwidth");
+						constructBandWidth(bwnoNodeList);
+
+					}
+				} catch (FileNotFoundException ex) {
+					System.out.println("DDG xml file is not found.");
+				}
+			} catch (ParserConfigurationException pce) {
+				System.out.println("Error while parsing the xml.");
+			} catch (SAXException se) {
+				System.out.println("Error while parsing the xml.");
+			} catch (IOException ioe) {
+				System.out.println("Exception while reading the xml.");
+			}
+		}
+
+		/**
+		 * 用来实现第一部分第一个实验的，构造不同的数据副本
+		 * 
+		 * @param copyno
+		 */
+		public static void readDatas(int copyno) {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			NodeList datasetNodeList = null;
+
+			try {
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				Document dom;
+				try {
+					dom = db.parse(R.FOLDER + R.inputFolder + R.DATASETS);
+					if (dom != null) {
+						Element docEle = dom.getDocumentElement();
+						datasetNodeList = docEle
+								.getElementsByTagName("dataset");
+						constructData(datasetNodeList, copyno);
 					}
 					dom = null;
 					dom = db.parse(R.FOLDER + R.inputFolder + R.CONTROL);
@@ -266,6 +257,26 @@ public class DR {
 				dataSet.setUsedtasks(getUsedtasks(element));
 				dataSet.setCreatetask(tasks.getTask(getValueOfTag("createtask",
 						element)));
+			}
+		}
+
+		private static void constructData(NodeList dataNodeList, int copyno) {
+			for (int i = 0; i < dataNodeList.getLength(); i++) {
+				Element element = (Element) dataNodeList.item(i);
+				String dataname = getValueOfTag("name", element);
+				String datasize = getValueOfTag("datasize", element);
+				String gt = getValueOfTag("gt", element);
+
+				for (int j = 1; j <= copyno; j++) {
+					DataSet dataSet = dataSets.getDataset(dataname, j);
+					dataSet.setDatasize(Double.parseDouble(datasize));
+					dataSet.setGt(Integer.parseInt(gt));
+					if (j == 1) {
+						dataSet.setUsedtasks(getUsedtasks(element));
+						dataSet.setCreatetask(tasks.getTask(getValueOfTag(
+								"createtask", element)));
+					}
+				}
 			}
 		}
 
@@ -382,6 +393,44 @@ public class DR {
 					transcost = s.getTranscost();
 				}
 			File file = new File(R.FOLDER + R.outputFolder + "result.txt");
+			try {
+				BufferedWriter bufferedWriter = new BufferedWriter(
+						new FileWriter(file));
+				bufferedWriter.write("timecost = ");
+				bufferedWriter.write("" + timecost);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("movetimes = ");
+				bufferedWriter.write("" + movetimes);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("transcost = ");
+				bufferedWriter.write("" + transcost);
+
+				bufferedWriter.flush();
+				bufferedWriter.close();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		public static void OutputTheResult(ArrayList<Strategy.S> Ss, int copyno) {
+
+			// TODO Auto-generated method stub
+			int movetimes = 0;
+			double transcost = 0;
+			double timecost = Double.MAX_VALUE;
+			for (strategies.DR.Strategy.S s : Ss)
+				if (s.getTimecost() < timecost) {
+					timecost = s.getTimecost();
+					movetimes = s.getMovetimes();
+					transcost = s.getTranscost();
+				}
+			File file = new File(R.FOLDER + R.outputFolder + "result" + copyno
+					+ ".txt");
 			try {
 				BufferedWriter bufferedWriter = new BufferedWriter(
 						new FileWriter(file));
@@ -766,22 +815,22 @@ public class DR {
 						}
 						S.Gene[] Pa1 = s1.getPa();
 						S.Gene[] Pa2 = s2.getPa();
-						
-						
-						boolean[] ptemp=new boolean[PaCHROMOSOMELENGTH*PaGENENLENGTH+1];
+
+						boolean[] ptemp = new boolean[PaCHROMOSOMELENGTH
+								* PaGENENLENGTH + 1];
 						while (true) {
 							int p = random.nextInt(PaCHROMOSOMELENGTH
 									* PaGENENLENGTH) + 1;
 							while (true) {
-								if(ptemp[p-1]){
-									p=random.nextInt(PaCHROMOSOMELENGTH
+								if (ptemp[p - 1]) {
+									p = random.nextInt(PaCHROMOSOMELENGTH
 											* PaGENENLENGTH) + 1;
 									continue;
 								}
-								ptemp[p-1]=true;
+								ptemp[p - 1] = true;
 								break;
 							}
-							
+
 							d = (p - 1) / PaGENENLENGTH;
 							int c = (p - 1) % PaGENENLENGTH;
 
@@ -839,21 +888,22 @@ public class DR {
 					}
 				}
 				printlnLineInfo("交叉阶段->end");
-				
+
 				// 将CH中各解按其对应的时间开销升序排序
 				Collections.sort(CH);
 				// 从CH中除去后面genSize个解，
 				while (CH.size() > R.popSize)
-					CH.remove(CH.size()-1);
+					CH.remove(CH.size() - 1);
 				double mintimecost = CH.get(0).getTimecost();
-				maxtimecost=CH.get(CH.size()-1).getTimecost();
-				
+				maxtimecost = CH.get(CH.size() - 1).getTimecost();
+
 				System.out.println("mintimecost:\t" + mintimecost
 						+ "\tmaxtimecost:" + maxtimecost);
-				//当获得的结果小于某个误差时，跳出循环-->
-				if((maxtimecost-0.001)<0||((maxtimecost-mintimecost)/maxtimecost)<R.variance)
+				// 当获得的结果小于某个误差时，跳出循环-->
+				if ((maxtimecost - 0.001) < 0
+						|| ((maxtimecost - mintimecost) / maxtimecost) < R.variance)
 					break;
-				//当获得的结果小于某个误差时，跳出循环<--
+				// 当获得的结果小于某个误差时，跳出循环<--
 			}
 			return CH;
 		}
@@ -1293,9 +1343,9 @@ public class DR {
 
 			@Override
 			public int compareTo(S o) {
-				if(this.timecost<o.timecost)
+				if (this.timecost < o.timecost)
 					return -1;
-				if(this.timecost>o.timecost)
+				if (this.timecost > o.timecost)
 					return 1;
 				return 0;
 			}
