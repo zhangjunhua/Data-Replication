@@ -647,10 +647,20 @@ public class DR {
 					if (random.nextDouble() < R.chiasma) {// 交叉操作
 						S.Gene[] Pa1 = s1.getPa();
 						S.Gene[] Pa2 = s2.getPa();
-
+						
+						boolean[] ptemp=new boolean[PaCHROMOSOMELENGTH*PaGENENLENGTH+1];
 						while (true) {
 							int p = random.nextInt(PaCHROMOSOMELENGTH
 									* PaGENENLENGTH) + 1;
+							while (true) {
+								if(ptemp[p-1]){
+									p=random.nextInt(PaCHROMOSOMELENGTH
+											* PaGENENLENGTH) + 1;
+									continue;
+								}
+								ptemp[p-1]=true;
+								break;
+							}
 							int d = (p - 1) / PaGENENLENGTH;
 							int c = (p - 1) % PaGENENLENGTH;
 
