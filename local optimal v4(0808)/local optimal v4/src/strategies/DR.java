@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
@@ -20,8 +21,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import com.sun.org.apache.bcel.internal.generic.DCMPG;
 
 import newClass.Cloud;
 import newClass.Cloud.DataCenter;
@@ -840,26 +839,15 @@ public class DR {
 					}
 				}
 				printlnLineInfo("交叉阶段->end");
+				
 				// 将CH中各解按其对应的时间开销升序排序
+				Collections.sort(CH);
 				// 从CH中除去后面genSize个解，
-				while (CH.size() >= R.popSize) {
-					int maxindex = 0;
-					maxtimecost = 0;
-					for (int k = 0; k < CH.size(); k++) {
-						if (CH.get(k).getTimecost() > maxtimecost) {
-							maxindex = k;
-							maxtimecost = CH.get(k).getTimecost();
-						}
-					}
-					if (CH.size() > R.popSize)
-						CH.remove(maxindex);
-					else
-						break;
-				}
-				double mintimecost = Double.MAX_VALUE;
-				for (S s : CH)
-					if (s.getTimecost() < mintimecost)
-						mintimecost = s.getTimecost();
+				while (CH.size() > R.popSize)
+					CH.remove(CH.size()-1);
+				double mintimecost = CH.get(0).getTimecost();
+				maxtimecost=CH.get(CH.size()-1).getTimecost();
+				
 				System.out.println("mintimecost:\t" + mintimecost
 						+ "\tmaxtimecost:" + maxtimecost);
 				//当获得的结果小于某个误差时，跳出循环-->
@@ -878,7 +866,7 @@ public class DR {
 			return false;
 		}
 
-		private static class S {
+		private static class S implements Comparable<S> {
 			private double timecost = 0;
 			private int movetimes = 0;
 			private double transcost = 0;
@@ -1301,6 +1289,15 @@ public class DR {
 				public void setBit(byte[] bit) {
 					this.bit = bit;
 				}
+			}
+
+			@Override
+			public int compareTo(S o) {
+				if(this.timecost<o.timecost)
+					return -1;
+				if(this.timecost>o.timecost)
+					return 1;
+				return 0;
 			}
 		}
 	}
