@@ -41,70 +41,6 @@ public class DR {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		// 224
-		{
-			int[] dcnum = { 5, 10, 25 };
-			for (int i = 0; i < dcnum.length; i++) {
-				R.maxDCnum = dcnum[i];
-				R.minDCnum = dcnum[i];
-				R.maxiDSnum = 30;
-				R.miniDSnum = 30;
-			}
-		}
-		// 225
-		{
-			int[] dcnum = { 15, 20 };
-			for (int i = 0; i < dcnum.length; i++) {
-				R.maxDCnum = dcnum[i];
-				R.minDCnum = dcnum[i];
-				R.maxiDSnum = 30;
-				R.miniDSnum = 30;
-			}
-		}
-		// 227
-		{
-			int[] dsnum = { 10, 20, 50 };
-			for (int i = 0; i < dsnum.length; i++) {
-				R.maxiDSnum = dsnum[i];
-				R.miniDSnum = dsnum[i];
-				R.maxDCnum = 15;
-				R.minDCnum = 15;
-			}
-		}
-		// 229
-		{
-			int[] dsnum = { 30, 40 };
-			for (int i = 0; i < dsnum.length; i++) {
-				R.maxiDSnum = dsnum[i];
-				R.miniDSnum = dsnum[i];
-				R.maxDCnum = 15;
-				R.minDCnum = 15;
-			}
-		}
-
-		R.maxTnum = R.maxiDSnum / 2;
-		R.minTnum = R.maxTnum;
-		// ================无副本策略=================
-		dataSets = DataSets.getNewInstanceofDataSets();
-		tasks = Tasks.getNewInstanceofTasks();
-		cloud = Cloud.getNewInstanceofCloud();
-		System.err.println("Start & CreateData");
-
-		readandwrite.readConfiguration();
-
-		CreateRandomData.newfolderandrstconf();
-		CreateRandomData.createData();
-		CreateRandomData.writeArgs();
-
-		System.err.println("ReadData");
-		readandwrite.readDatas2();
-		System.err.println("ReadData finished");
-
-		Strategy.initialize();
-
-		System.err.println("The Heredity Begin!");
-		ArrayList<Strategy.S> CH1 = Strategy.Heredity();
-		System.err.println("The Heredity End!");
 		// ==================本文策略==================
 		dataSets = DataSets.getNewInstanceofDataSets();
 		tasks = Tasks.getNewInstanceofTasks();
@@ -118,13 +54,10 @@ public class DR {
 		Strategy.initialize();
 
 		System.err.println("The Heredity Begin!");
-		ArrayList<Strategy.S> CH2 = Strategy.Heredity();
+		ArrayList<Strategy.S> CH = Strategy.Heredity();
 		System.err.println("The Heredity End!");
-		// ================hadoop=======================
-		Strategy.S hadoop = Strategy.S.getRandomS();
-		Strategy.TimeAndTransAndMoveCosttotal(hadoop);
 
-		readandwrite.OutputTheResult(CH1, CH2, hadoop);
+		readandwrite.OutputTheResult(CH);
 	}
 
 	public static class readandwrite {
@@ -158,7 +91,6 @@ public class DR {
 		public static void readDatas() {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			NodeList datasetNodeList = null;
-
 			try {
 				DocumentBuilder db = dbf.newDocumentBuilder();
 				Document dom;
@@ -487,7 +419,7 @@ public class DR {
 		public static int ScGENELENGTH;
 		public static int PaCHROMOSOMELENGTH;
 		public static int PaGENENLENGTH;
-		public static int[] DescripDSC;
+		public static int[] DescripDSC;// 用来描述对应的副本是属于哪个数据集的
 		public static ArrayList<S> CH;
 		public static ArrayList<Task> tasksequence;
 
@@ -547,7 +479,7 @@ public class DR {
 			int movecost = 0;
 			int i = 0;
 			Task t = tasksequence.get(i++);
-			while (i < tasksequence.size()) {
+			while (i < tasksequence.size()) {//按照任务执行先后次序遍历出每个任务
 				if (false) {// if(t是分支任务)
 					// for (每个分支){
 					// 记第i个分支对应的子流程为Pi ;
@@ -558,30 +490,44 @@ public class DR {
 					double mincost = Double.MAX_VALUE;
 					int tmovecost = 0;
 					double ttranscost = 0;
-					for (int j = 1; j <= cloud.getDataCenters().size(); j++) {
+					for (int j = 1; j <= cloud.getDataCenters().size(); j++) {//遍历出每个数据中心
 						double sumcost = 0;
 						int summovecost = 0;
 						double sumtranscost = 0;
+
 						String tdc = cloud.getDataCenter(j).getName();
 						int tID = t.getID();
 						S.Gene[] Pa = s.getPa();
-						
-						//找出最小的匹配
-//						for (int k = 0; k < Sc[tID - 1].getBit().length; k++) {
-//							if (Sc[tID - 1].getBit()[k] == 1) {
-//								int dID = DescripDSC[k];
-//								String ddc = cloud.getDataCenter(
-//										Pa[k].getValueofGene()).getName();
-//								if (ddc.equals(tdc))
-//									continue;
-//								double bandwidth = cloud.getBandWidth(tdc, ddc);
-//								sumcost += dataSets.getDataset(dID)
-//										.getDatasize() / bandwidth;
-//								sumtranscost += dataSets.getDataset(dID)
-//										.getDatasize();
-//								summovecost++;
-//							}
-//						}
+
+						for (DataSet dataSet : t.getInputDataSets()) {//遍历出出每个输入数据
+							String dName = dataSet.getName();
+							double dSize = dataSet.getDatasize();
+							int dId = dataSet.getID();
+							int copyno = dataSets.gettheCopyNum(dName);
+
+							int pointer = 0;
+							while (DescripDSC[pointer] != dId)
+								pointer++;
+
+							double mincostDSC = Double.MAX_VALUE;
+							for (int k = 0; k < copyno; k++) {//遍历出每个输入数据的副本，找出最“临近”的那一个
+								int lc = Pa[pointer + k].getValueofGene();
+								String ddc = cloud.getDataCenter(lc).getName();
+								if (ddc.equals(tdc)) {
+									mincostDSC = 0;
+									break;
+								}
+								double bandwidth = cloud.getBandWidth(tdc, ddc);
+								double DSCcost = dSize / bandwidth;
+								if (DSCcost < mincostDSC)
+									mincostDSC = DSCcost;
+							}
+							if(mincostDSC==0)
+								continue;
+							sumcost+=mincostDSC;
+							sumtranscost+=dSize;
+							summovecost++;
+						}
 						if (mincost > sumcost) {
 							mincost = sumcost;
 							tmovecost = summovecost;

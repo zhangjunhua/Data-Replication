@@ -40,7 +40,12 @@ public class DataSets {
 		dataset = new DataSets();
 		return dataset;
 	}
-
+	/**
+	 * 通过数据集的名称和副本号来得到数据副本
+	 * @param name
+	 * @param copyno
+	 * @return
+	 */
 	public DataSet getDataset(String name, int copyno) {
 		for (DataSet dataSet : dataSets) {
 			if (dataSet.getName().equals(name) && dataSet.getCopyNo() == copyno) {
