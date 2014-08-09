@@ -41,23 +41,29 @@ public class DR {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		// ==================本文策略==================
-		dataSets = DataSets.getNewInstanceofDataSets();
-		tasks = Tasks.getNewInstanceofTasks();
-		cloud = Cloud.getNewInstanceofCloud();
-		System.err.println("Start & CreateData");
+		for (int testnum = 1; testnum <= 10; testnum++) {
+			readandwrite.readConfiguration();
+			CreateRandomData.newfolderandrstconf();
+			CreateRandomData.createData();
+			CreateRandomData.writeArgs();
+			for (int copyno = 1; copyno <= 10; copyno++) {
+				dataSets = DataSets.getNewInstanceofDataSets();
+				tasks = Tasks.getNewInstanceofTasks();
+				cloud = Cloud.getNewInstanceofCloud();
 
-		System.err.println("ReadData");
-		readandwrite.readDatas();
-		System.err.println("ReadData finished");
+				System.err.println("ReadData");
+				readandwrite.readDatas(copyno);
+				System.err.println("ReadData finished");
 
-		Strategy.initialize();
+				// 初始化Strategy
+				Strategy.initialize();
 
-		System.err.println("The Heredity Begin!");
-		ArrayList<Strategy.S> CH = Strategy.Heredity();
-		System.err.println("The Heredity End!");
-
-		readandwrite.OutputTheResult(CH);
+				System.err.println("The Heredity Begin!");
+				ArrayList<Strategy.S> CH = Strategy.Heredity();
+				readandwrite.OutputTheResult(CH, copyno);
+				System.err.println("The Heredity End!");
+			}
+		}
 	}
 
 	public static class readandwrite {
@@ -133,7 +139,12 @@ public class DR {
 			}
 		}
 
-		public static void readDatas2() {
+		/**
+		 * 用来实现第一部分第一个实验的，构造不同的数据副本
+		 * 
+		 * @param copyno
+		 */
+		public static void readDatas(int copyno) {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			NodeList datasetNodeList = null;
 
@@ -141,12 +152,12 @@ public class DR {
 				DocumentBuilder db = dbf.newDocumentBuilder();
 				Document dom;
 				try {
-					dom = db.parse(R.FOLDER + R.inputFolder + R.nDATASETS);
+					dom = db.parse(R.FOLDER + R.inputFolder + R.DATASETS);
 					if (dom != null) {
 						Element docEle = dom.getDocumentElement();
 						datasetNodeList = docEle
 								.getElementsByTagName("dataset");
-						constructData(datasetNodeList);
+						constructData(datasetNodeList, copyno);
 					}
 					dom = null;
 					dom = db.parse(R.FOLDER + R.inputFolder + R.CONTROL);
@@ -196,6 +207,26 @@ public class DR {
 				dataSet.setUsedtasks(getUsedtasks(element));
 				dataSet.setCreatetask(tasks.getTask(getValueOfTag("createtask",
 						element)));
+			}
+		}
+
+		private static void constructData(NodeList dataNodeList, int copyno) {
+			for (int i = 0; i < dataNodeList.getLength(); i++) {
+				Element element = (Element) dataNodeList.item(i);
+				String dataname = getValueOfTag("name", element);
+				String datasize = getValueOfTag("datasize", element);
+				String gt = getValueOfTag("gt", element);
+
+				for (int j = 1; j <= copyno; j++) {
+					DataSet dataSet = dataSets.getDataset(dataname, j);
+					dataSet.setDatasize(Double.parseDouble(datasize));
+					dataSet.setGt(Integer.parseInt(gt));
+					if (j == 1) {
+						dataSet.setUsedtasks(getUsedtasks(element));
+						dataSet.setCreatetask(tasks.getTask(getValueOfTag(
+								"createtask", element)));
+					}
+				}
 			}
 		}
 
@@ -411,12 +442,48 @@ public class DR {
 				e.printStackTrace();
 			}
 		}
+
+		public static void OutputTheResult(ArrayList<Strategy.S> Ss, int copyno) {
+
+			// TODO Auto-generated method stub
+			int movetimes = 0;
+			double transcost = 0;
+			double timecost = Double.MAX_VALUE;
+			for (strategies.DR.Strategy.S s : Ss)
+				if (s.getTimecost() < timecost) {
+					timecost = s.getTimecost();
+					movetimes = s.getMovetimes();
+					transcost = s.getTranscost();
+				}
+			File file = new File(R.FOLDER + R.outputFolder + "result" + copyno
+					+ ".txt");
+			try {
+				BufferedWriter bufferedWriter = new BufferedWriter(
+						new FileWriter(file));
+				bufferedWriter.write("timecost = ");
+				bufferedWriter.write("" + timecost);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("movetimes = ");
+				bufferedWriter.write("" + movetimes);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("transcost = ");
+				bufferedWriter.write("" + transcost);
+
+				bufferedWriter.flush();
+				bufferedWriter.close();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
 	}
 
 	public static class Strategy {
 		static Random random = new Random();
-		public static int ScCHROMOSOMELENGTH;
-		public static int ScGENELENGTH;
 		public static int PaCHROMOSOMELENGTH;
 		public static int PaGENENLENGTH;
 		public static int[] DescripDSC;// 用来描述对应的副本是属于哪个数据集的
@@ -425,8 +492,6 @@ public class DR {
 
 		public static void initialize() {
 			{
-				ScCHROMOSOMELENGTH = tasks.getTasks().size();
-				ScGENELENGTH = dataSets.getDataSets().size();
 				PaCHROMOSOMELENGTH = dataSets.getDataSets().size();
 				PaGENENLENGTH = (int) (Math.log(cloud.getDataCenters().size())
 						/ Math.log(2) + 0.999999);
@@ -479,7 +544,7 @@ public class DR {
 			int movecost = 0;
 			int i = 0;
 			Task t = tasksequence.get(i++);
-			while (i < tasksequence.size()) {//按照任务执行先后次序遍历出每个任务
+			while (i < tasksequence.size()) {// 按照任务执行先后次序遍历出每个任务
 				if (false) {// if(t是分支任务)
 					// for (每个分支){
 					// 记第i个分支对应的子流程为Pi ;
@@ -490,7 +555,7 @@ public class DR {
 					double mincost = Double.MAX_VALUE;
 					int tmovecost = 0;
 					double ttranscost = 0;
-					for (int j = 1; j <= cloud.getDataCenters().size(); j++) {//遍历出每个数据中心
+					for (int j = 1; j <= cloud.getDataCenters().size(); j++) {// 遍历出每个数据中心
 						double sumcost = 0;
 						int summovecost = 0;
 						double sumtranscost = 0;
@@ -499,7 +564,7 @@ public class DR {
 						int tID = t.getID();
 						S.Gene[] Pa = s.getPa();
 
-						for (DataSet dataSet : t.getInputDataSets()) {//遍历出出每个输入数据
+						for (DataSet dataSet : t.getInputDataSets()) {// 遍历出出每个输入数据
 							String dName = dataSet.getName();
 							double dSize = dataSet.getDatasize();
 							int dId = dataSet.getID();
@@ -510,7 +575,7 @@ public class DR {
 								pointer++;
 
 							double mincostDSC = Double.MAX_VALUE;
-							for (int k = 0; k < copyno; k++) {//遍历出每个输入数据的副本，找出最“临近”的那一个
+							for (int k = 0; k < copyno; k++) {// 遍历出每个输入数据的副本，找出最“临近”的那一个
 								int lc = Pa[pointer + k].getValueofGene();
 								String ddc = cloud.getDataCenter(lc).getName();
 								if (ddc.equals(tdc)) {
@@ -522,10 +587,10 @@ public class DR {
 								if (DSCcost < mincostDSC)
 									mincostDSC = DSCcost;
 							}
-							if(mincostDSC==0)
+							if (mincostDSC == 0)
 								continue;
-							sumcost+=mincostDSC;
-							sumtranscost+=dSize;
+							sumcost += mincostDSC;
+							sumtranscost += dSize;
 							summovecost++;
 						}
 						if (mincost > sumcost) {
@@ -647,18 +712,19 @@ public class DR {
 					if (random.nextDouble() < R.chiasma) {// 交叉操作
 						S.Gene[] Pa1 = s1.getPa();
 						S.Gene[] Pa2 = s2.getPa();
-						
-						boolean[] ptemp=new boolean[PaCHROMOSOMELENGTH*PaGENENLENGTH+1];
+
+						boolean[] ptemp = new boolean[PaCHROMOSOMELENGTH
+								* PaGENENLENGTH + 1];
 						while (true) {
 							int p = random.nextInt(PaCHROMOSOMELENGTH
 									* PaGENENLENGTH) + 1;
 							while (true) {
-								if(ptemp[p-1]){
-									p=random.nextInt(PaCHROMOSOMELENGTH
+								if (ptemp[p - 1]) {
+									p = random.nextInt(PaCHROMOSOMELENGTH
 											* PaGENENLENGTH) + 1;
 									continue;
 								}
-								ptemp[p-1]=true;
+								ptemp[p - 1] = true;
 								break;
 							}
 							int d = (p - 1) / PaGENENLENGTH;
