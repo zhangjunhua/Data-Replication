@@ -23,6 +23,9 @@ import org.dom4j.io.XMLWriter;
  * 为了生成合理的测试数据，测试数据的生成顺序为：数据中心及带宽->数据集和任务集->数据集副本集合。（待优化）
  */
 
+
+
+
 public class CreateRandomData {
 	static Random random = new Random();
 	public static Scanner scanner;
