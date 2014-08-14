@@ -831,15 +831,14 @@ public class DR {
 				CH.add(s);
 				return false;
 			}
-			if (CH.get(l).isTheSame(s)
-					|| CH.get(r).isTheSame(s)) {
+			if (CH.get(l).isTheSame(s) || CH.get(r).isTheSame(s)) {
 				return true;
 			}
 			if (mxtc == 0 || mxtc == 2) {
 				if (CH.get(0).getTimecost() >= s.getTimecost())
 					CH.add(0, s);
 				else if (CH.get(CH.size() - 1).getTimecost() <= s.getTimecost()) {
-					CH.add(CH.size() - 1, s);
+					CH.add(CH.size(), s);
 				} else {
 					CH.add(location + 1, s);
 				}
