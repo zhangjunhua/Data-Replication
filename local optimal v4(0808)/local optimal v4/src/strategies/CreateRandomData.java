@@ -4,10 +4,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.Random;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -204,103 +208,35 @@ public class CreateRandomData {
 		try {
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
 					file));
-			bufferedWriter.write("maxDCnum = ");
-			bufferedWriter.write("" + R.maxDCnum);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minDCnum = ");
-			bufferedWriter.write("" + R.minDCnum);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxDCstorage = ");
-			bufferedWriter.write("" + R.maxDCstorage);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minDCstorage = ");
-			bufferedWriter.write("" + R.minDCstorage);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxBandWidth = ");
-			bufferedWriter.write("" + R.maxBandWidth);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minBandWith = ");
-			bufferedWriter.write("" + R.minBandWith);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxDSnum = ");
-			bufferedWriter.write("" + R.maxiDSnum);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minDSnum = ");
-			bufferedWriter.write("" + R.miniDSnum);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxDsSize = ");
-			bufferedWriter.write("" + R.maxDsSize);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minDsSize = ");
-			bufferedWriter.write("" + R.minDsSize);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxCopyno = ");
-			bufferedWriter.write("" + R.maxCopyno);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minCopyno = ");
-			bufferedWriter.write("" + R.minCopyno);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxTnum = ");
-			bufferedWriter.write("" + R.maxTnum);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minTnum = ");
-			bufferedWriter.write("" + R.minTnum);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxIDS = ");
-			bufferedWriter.write("" + R.maxIDS);
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("minIDS = ");
-			bufferedWriter.write("" + R.minIDS);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("lamda = ");
-			bufferedWriter.write("" + R.lamda);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("variation = ");
-			bufferedWriter.write("" + R.variation);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("chiasma = ");
-			bufferedWriter.write("" + R.chiasma);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("genSize = ");
-			bufferedWriter.write("" + R.genSize);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("popSize = ");
-			bufferedWriter.write("" + R.popSize);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
-			bufferedWriter.write("maxGen = ");
-			bufferedWriter.write("" + R.maxGen);
-			bufferedWriter.newLine();
-			bufferedWriter.newLine();
-
+			R r = new R();
+			Field[] field = r.getClass().getDeclaredFields();
+			for (int j = 0; j < field.length; j++) {
+				try {
+					String name = field[j].getName();
+					Method m = r.getClass().getMethod(
+							"get" + name.substring(0, 1).toUpperCase()
+									+ name.substring(1));
+					Object value = m.invoke(r);
+					System.out.println(name + ":" + value);
+					bufferedWriter.write(name + ":" + value);
+					bufferedWriter.newLine();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+			}
 			bufferedWriter.flush();
 			bufferedWriter.close();
 		} catch (IOException e) {
