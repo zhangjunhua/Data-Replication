@@ -452,7 +452,6 @@ public class DR {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 
 		public static void OutputTheResult(ArrayList<Strategy.S> Ss,
@@ -533,6 +532,9 @@ public class DR {
 	}
 
 	public static class Strategy {
+		// 这个变量用来优化淘汰算法的
+		static double maxtimecost = 0;
+
 		static Random random = new Random();
 		public static int ScCHROMOSOMELENGTH;
 		public static int ScGENELENGTH;
@@ -650,19 +652,17 @@ public class DR {
 		}
 
 		public static ArrayList<S> Heredity() {
-			double maxtimecost = 0;
+			maxtimecost = 0;
 			System.err.println("Create popSize random S");
 			int i = 1;
 			while (i <= R.popSize) {
 				System.err.println("Create " + i + "th random S");
 				S s = S.getRandomS();
-				if (!CHcontainsS(s)) {
+
+				TimeAndTransAndMoveCosttotal(s);
+				if (!CHcontainsS(s, 0)) {
 					System.err.println("Create " + i + "th random S Finished");
-					CH.add(s);
 					i++;
-					TimeAndTransAndMoveCosttotal(s);
-					if (s.getTimecost() > maxtimecost)
-						maxtimecost = s.getTimecost();
 				}
 			}
 			System.err.println("Create popSize random S Finished");
@@ -734,15 +734,14 @@ public class DR {
 							Pa[d].Reverse(c);
 						}
 
-						if (!CHcontainsS(s)) {
-							Ss.add(s);
-							TimeAndTransAndMoveCosttotal(s);
-						}
+						Ss.add(s);
 					}
 				}
 
-				for (S s : Ss)
-					CH.add(s);
+				for (S s : Ss) {
+					TimeAndTransAndMoveCosttotal(s);
+					CHcontainsS(s, 0);
+				}
 				printlnLineInfo("变异阶段->end");
 
 				// 赌轮算法计算概率
@@ -763,10 +762,11 @@ public class DR {
 
 				System.out.print("交叉阶段");
 				int j = 0;
+				double select1, select2;
+				S s1 = null, s2 = null;
 				while (j < R.genSize) {
-					double select1 = random.nextDouble();
-					double select2 = random.nextDouble();
-					S s1 = null, s2 = null;
+					select1 = random.nextDouble();
+					select2 = random.nextDouble();
 					for (int k = 0; k < CH.size(); k++) {
 						S s = CH.get(k);
 						if (s.isSelected(select1) && s.isSelected(select2)) {
@@ -872,25 +872,29 @@ public class DR {
 								Pa2[k] = temp;
 							}
 						}
-						if (!CHcontainsS(s1)) {
-							TimeAndTransAndMoveCosttotal(s1);
-							if (s1.getTimecost() < maxtimecost) {
-								CH.add(s1);
-							}
+						
+						TimeAndTransAndMoveCosttotal(s1);
+						boolean contained;
+						if (s1.getTimecost() < maxtimecost) {
+							contained = CHcontainsS(s1, 2);
+							if (!contained)
+								j++;
+						} else {
 							j++;
 						}
-						if (!CHcontainsS(s2)) {
-							TimeAndTransAndMoveCosttotal(s2);
-							if (s2.getTimecost() < maxtimecost)
-								CH.add(s2);
+						
+						TimeAndTransAndMoveCosttotal(s2);
+						if (s2.getTimecost() < maxtimecost) {
+							contained = CHcontainsS(s2, 2);
+							if (!contained)
+								j++;
+						} else {
 							j++;
 						}
 					}
 				}
 				printlnLineInfo("交叉阶段->end");
 
-				// 将CH中各解按其对应的时间开销升序排序
-				Collections.sort(CH);
 				// 从CH中除去后面genSize个解，
 				while (CH.size() > R.popSize)
 					CH.remove(CH.size() - 1);
@@ -904,14 +908,64 @@ public class DR {
 						|| ((maxtimecost - mintimecost) / maxtimecost) < R.variance)
 					break;
 				// 当获得的结果小于某个误差时，跳出循环<--
+
+				if (CH.get(0).getMovetimes() == 0) {
+					System.err.println("结果为零！提前退出。");
+					break;
+				}
 			}
 			return CH;
 		}
 
-		public static boolean CHcontainsS(S s) {
-			for (S stemp : CH) {
-				if (s.isTheSame(stemp))
-					return true;
+		// 重要函数优化，完成搜索、插入、淘汰操作
+		/**
+		 * mxtc为0是插入操作，2在0的基础上有淘汰操作
+		 * 
+		 * @param s
+		 * @param mxtc
+		 * @return
+		 */
+		public static boolean CHcontainsS(S s, int mxtc) {
+			int l = 0, r = CH.size() - 1;
+			int location = (l + r) / 2;
+			while (l < r - 1) {
+				if (CH.get(location).getTimecost() > s.getTimecost()) {
+					r = location;
+					location = (l + r) / 2;
+					continue;
+				}
+				if (CH.get(location).getTimecost() < s.getTimecost()) {
+					l = location;
+					location = (l + r) / 2;
+					continue;
+				}
+				if (CH.get(location).getTimecost() == s.getTimecost()) {
+					break;
+				}
+			}
+			if (CH.size() == 0) {
+				CH.add(s);
+				return false;
+			}
+			if (CH.get(l).isTheSame(s) || CH.get(r).isTheSame(s)) {
+				return true;
+			}
+			if (mxtc == 0 || mxtc == 2) {
+				if (CH.get(0).getTimecost() >= s.getTimecost())
+					CH.add(0, s);
+				else if (CH.get(CH.size() - 1).getTimecost() <= s.getTimecost()) {
+					CH.add(CH.size() - 1, s);
+				} else {
+					CH.add(location + 1, s);
+				}
+			}
+			if (mxtc == 2) {
+				for (int i = CH.size() - 1; i >= R.popSize; i--) {
+					if (CH.get(i).getProbilityr() < 0) {
+						CH.remove(i);
+						i--;
+					}
+				}
 			}
 			return false;
 		}
@@ -920,7 +974,7 @@ public class DR {
 			private double timecost = 0;
 			private int movetimes = 0;
 			private double transcost = 0;
-			private double probilityl = 0, probilityr = 0;
+			private double probilityl = -1, probilityr = -1;
 			private Gene[] Sc, Pa;
 
 			public static S getRandomS() {
@@ -1232,6 +1286,12 @@ public class DR {
 			}
 
 			public boolean isTheSame(S s) {
+				if (movetimes != s.getMovetimes())
+					return false;
+				if ((timecost - s.getTimecost() > 0 ? (timecost - s
+						.getTimecost()) : (s.getTimecost() - timecost)) > 0.01)
+					return false;
+
 				for (int i = 0; i < Sc.length; i++) {
 					for (int j = 0; j < Sc[i].getBit().length; j++) {
 						if (Sc[i].getBit()[j] != s.getSc()[i].getBit()[j])
