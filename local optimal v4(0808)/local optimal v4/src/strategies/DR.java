@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
@@ -202,7 +201,7 @@ public class DR {
 				DocumentBuilder db = dbf.newDocumentBuilder();
 				Document dom;
 				try {
-					dom = db.parse(R.FOLDER + R.inputFolder + R.nDATASETS);
+					dom = db.parse(R.FOLDER + R.inputFolder + R.NDATASETS);
 					if (dom != null) {
 						Element docEle = dom.getDocumentElement();
 						datasetNodeList = docEle
@@ -666,8 +665,13 @@ public class DR {
 				}
 			}
 			System.err.println("Create popSize random S Finished");
-
-			while (true) {
+			int var_speed_gen = 0;
+			int speed_gen = 0;
+			double lttc = Double.MAX_VALUE;
+			int curGen = 0;
+			while (curGen < R.maxGen) {
+				System.out.println("============curGen:" + curGen
+						+ "=============");
 				printlnLineInfo("变异阶段");
 				ArrayList<S> Ss = new ArrayList<S>();
 				for (S s : CH) {
@@ -872,7 +876,7 @@ public class DR {
 								Pa2[k] = temp;
 							}
 						}
-						
+
 						TimeAndTransAndMoveCosttotal(s1);
 						boolean contained;
 						if (s1.getTimecost() < maxtimecost) {
@@ -882,7 +886,7 @@ public class DR {
 						} else {
 							j++;
 						}
-						
+
 						TimeAndTransAndMoveCosttotal(s2);
 						if (s2.getTimecost() < maxtimecost) {
 							contained = CHcontainsS(s2, 2);
@@ -900,26 +904,54 @@ public class DR {
 					CH.remove(CH.size() - 1);
 				double mintimecost = CH.get(0).getTimecost();
 				maxtimecost = CH.get(CH.size() - 1).getTimecost();
-
 				System.out.println("mintimecost:\t" + mintimecost
 						+ "\tmaxtimecost:" + maxtimecost);
-				// 当获得的结果小于某个误差时，跳出循环-->
-				if ((maxtimecost - 0.001) < 0
-						|| ((maxtimecost - mintimecost) / maxtimecost) < R.variance)
-					break;
-				// 当获得的结果小于某个误差时，跳出循环<--
 
+				// 程序退出条件
 				if (CH.get(0).getMovetimes() == 0) {
 					System.err.println("结果为零！提前退出。");
 					break;
 				}
+				if (curGen > R.minGen) {
+					//计算连续误差小的代数
+					if ((maxtimecost - mintimecost) / maxtimecost < R.variance)
+						var_speed_gen++;
+					else
+						var_speed_gen = 0;
+					
+					//计算连续进化速度慢的代数
+					double nttc = 0;
+					for (S s : CH)
+						nttc += s.getTimecost();
+					if ((lttc - nttc) / lttc < R.speed)
+						speed_gen++;
+					else
+						speed_gen = 0;
+					lttc = nttc;
+					
+					//相对误差小&&进化速度慢
+					if (var_speed_gen > R.var_and_speed_Gen
+							&& speed_gen > R.var_and_speed_Gen) {
+						System.err.println("(相对误差小&&进化速度慢)这样的情况超过若干代如"
+								+ R.var_and_speed_Gen + "代");
+						break;
+					}
+					
+					//进化速度慢
+					if (speed_gen > R.speed_Gen) {
+						System.err.println("(进化速度慢)这样的情况超过若干代如" + R.speed_Gen
+								+ "代");
+						break;
+					}
+
+				}
+				curGen++;
 			}
 			return CH;
 		}
 
-		// 重要函数优化，完成搜索、插入、淘汰操作
 		/**
-		 * mxtc为0是插入操作，2在0的基础上有淘汰操作
+		 * 重要函数优化，完成搜索、插入、淘汰操作 mxtc为0是插入操作，2在0的基础上有淘汰操作
 		 * 
 		 * @param s
 		 * @param mxtc
