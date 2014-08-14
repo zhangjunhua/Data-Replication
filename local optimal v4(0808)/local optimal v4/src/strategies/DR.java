@@ -954,7 +954,7 @@ public class DR {
 				if (CH.get(0).getTimecost() >= s.getTimecost())
 					CH.add(0, s);
 				else if (CH.get(CH.size() - 1).getTimecost() <= s.getTimecost()) {
-					CH.add(CH.size() - 1, s);
+					CH.add(CH.size(), s);
 				} else {
 					CH.add(location + 1, s);
 				}
