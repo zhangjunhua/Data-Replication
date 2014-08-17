@@ -20,13 +20,13 @@ public final class R {
 	public static double minDsSize = 17.6;
 	public static double maxDsSize = 26.4;
 
-	public static int maxCopyno = 1;
-	public static int minCopyno = 1;
+	public static int maxCopyno = 2;
+	public static int minCopyno = 2;
 
 	public static int maxTnum = 15;
 	public static int minTnum = 15;
-	public static int maxIDS = 13;
-	public static int minIDS = 4;
+	public static int maxIDS = 15;
+	public static int minIDS = 8;
 
 	public static double lamda = 0.87723824;
 	public static double variation = 0.23423242;
