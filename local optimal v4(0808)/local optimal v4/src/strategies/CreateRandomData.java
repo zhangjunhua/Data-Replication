@@ -180,6 +180,34 @@ public class CreateRandomData {
 			writer.write(datasetsDocument);
 			writer.close();
 		}
+		{
+
+			Document datasetsDocument = DocumentHelper.createDocument();
+			Element rootElement = datasetsDocument.addElement("datasets");
+			for (int i = 0; i < DSnum; i++) {
+				for (int j = 0; j < 1; j++) {
+					Element datasetElement = rootElement.addElement("dataset");
+					datasetElement.addElement("name").setText(dss[i].name);
+					datasetElement.addElement("copyno").setText("" + (j + 1));
+					datasetElement.addElement("datasize").setText(
+							"" + dss[i].size);
+					datasetElement.addElement("gt").setText("" + dss[i].gt);
+					if (dss[i].createtask != null)
+						datasetElement.addElement("createtask").setText(
+								dss[i].createtask);
+					Element usedtasksElement = datasetElement
+							.addElement("usedtasks");
+					for (String t : dss[i].usedtasks)
+						usedtasksElement.addElement("task").setText(t);
+				}
+			}
+			OutputFormat format = OutputFormat.createPrettyPrint();
+			XMLWriter writer = new XMLWriter(new FileWriter(new File(R.FOLDER
+					+ R.inputFolder + R.NDATASETS)), format);
+			writer.write(datasetsDocument);
+			writer.close();
+
+		}
 
 		// ÈÎÎñ¼¯
 		{

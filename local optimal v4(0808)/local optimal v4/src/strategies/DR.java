@@ -36,35 +36,124 @@ public class DR {
 	static DataSets dataSets = DataSets.getInstanceofDataSets();
 	static Tasks tasks = Tasks.getInstanceofTasks();
 	static Cloud cloud = Cloud.getInstanceofCloud();
+	static boolean exit = false;
 
 	/**
 	 * @param args
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
+		new Thread(new exit()).start();
+		while (!exit) {
 
-		for (int testnum = 1; testnum <= 10; testnum++) {
-			readandwrite.readConfiguration();
-			CreateRandomData.newfolderandrstconf();
-			CreateRandomData.createData();
-			CreateRandomData.writeArgs();
-			for (int copyno = 1; copyno <= 10; copyno++) {
-				dataSets = DataSets.getNewInstanceofDataSets();
-				tasks = Tasks.getNewInstanceofTasks();
-				cloud = Cloud.getNewInstanceofCloud();
+			// 224、225
+			{
+				int[] dcnum = { 5, 10, 15, 20, 25 };
+				for (int i = 0; i < dcnum.length; i++) {
+					R.maxDCnum = dcnum[i];
+					R.minDCnum = dcnum[i];
+					R.maxiDSnum = 30;
+					R.miniDSnum = 30;
+					R.maxTnum = R.maxiDSnum / 2;
+					R.minTnum = R.maxTnum;
 
-				System.err.println("ReadData");
-				readandwrite.readDatas(copyno);
-				System.err.println("ReadData finished");
+					// ================无副本策略=================
+					dataSets = DataSets.getNewInstanceofDataSets();
+					tasks = Tasks.getNewInstanceofTasks();
+					cloud = Cloud.getNewInstanceofCloud();
+					System.err.println("Start & CreateData");
 
-				// 初始化Strategy
-				Strategy.initialize();
+					readandwrite.readConfiguration();
 
-				System.err.println("The Heredity Begin!");
-				ArrayList<Strategy.S> CH = Strategy.Heredity();
-				readandwrite.OutputTheResult(CH, copyno);
-				System.err.println("The Heredity End!");
+					CreateRandomData.newfolderandrstconf();
+					CreateRandomData.createData();
+					CreateRandomData.writeArgs();
+
+					System.err.println("ReadData");
+					readandwrite.readDatas2();
+					System.err.println("ReadData finished");
+
+					Strategy.initialize();
+
+					System.err.println("The Heredity Begin!");
+					ArrayList<Strategy.S> CH1 = Strategy.Heredity();
+					System.err.println("The Heredity End!");
+					// ==================本文策略==================
+					dataSets = DataSets.getNewInstanceofDataSets();
+					tasks = Tasks.getNewInstanceofTasks();
+					cloud = Cloud.getNewInstanceofCloud();
+					System.err.println("Start & CreateData");
+
+					System.err.println("ReadData");
+					readandwrite.readDatas();
+					System.err.println("ReadData finished");
+
+					Strategy.initialize();
+
+					System.err.println("The Heredity Begin!");
+					ArrayList<Strategy.S> CH2 = Strategy.Heredity();
+					System.err.println("The Heredity End!");
+					// ================hadoop=======================
+					Strategy.S hadoop = Strategy.S.getRandomS();
+					Strategy.TimeAndTransAndMoveCosttotal(hadoop);
+
+					readandwrite.OutputTheResult(CH1, CH2, hadoop);
+				}
 			}
+			// 227、229
+			// {
+			// int[] dsnum = { 10, 20, 30, 40, 50 };
+			// for (int i = 0; i < dsnum.length; i++) {
+			// R.maxiDSnum = dsnum[i];
+			// R.miniDSnum = dsnum[i];
+			// R.maxDCnum = 15;
+			// R.minDCnum = 15;
+			// R.maxTnum = R.maxiDSnum / 2;
+			// R.minTnum = R.maxTnum;
+			//
+			// // ================无副本策略=================
+			// dataSets = DataSets.getNewInstanceofDataSets();
+			// tasks = Tasks.getNewInstanceofTasks();
+			// cloud = Cloud.getNewInstanceofCloud();
+			// System.err.println("Start & CreateData");
+			//
+			// readandwrite.readConfiguration();
+			//
+			// CreateRandomData.newfolderandrstconf();
+			// CreateRandomData.createData();
+			// CreateRandomData.writeArgs();
+			//
+			// System.err.println("ReadData");
+			// readandwrite.readDatas2();
+			// System.err.println("ReadData finished");
+			//
+			// Strategy.initialize();
+			//
+			// System.err.println("The Heredity Begin!");
+			// ArrayList<Strategy.S> CH1 = Strategy.Heredity();
+			// System.err.println("The Heredity End!");
+			// // ==================本文策略==================
+			// dataSets = DataSets.getNewInstanceofDataSets();
+			// tasks = Tasks.getNewInstanceofTasks();
+			// cloud = Cloud.getNewInstanceofCloud();
+			// System.err.println("Start & CreateData");
+			//
+			// System.err.println("ReadData");
+			// readandwrite.readDatas();
+			// System.err.println("ReadData finished");
+			//
+			// Strategy.initialize();
+			//
+			// System.err.println("The Heredity Begin!");
+			// ArrayList<Strategy.S> CH2 = Strategy.Heredity();
+			// System.err.println("The Heredity End!");
+			// // ================hadoop=======================
+			// Strategy.S hadoop = Strategy.S.getRandomS();
+			// Strategy.TimeAndTransAndMoveCosttotal(hadoop);
+			//
+			// readandwrite.OutputTheResult(CH1, CH2, hadoop);
+			// }
+			// }
 		}
 	}
 
@@ -913,13 +1002,13 @@ public class DR {
 					break;
 				}
 				if (curGen > R.minGen) {
-					//计算连续误差小的代数
+					// 计算连续误差小的代数
 					if ((maxtimecost - mintimecost) / maxtimecost < R.variance)
 						var_speed_gen++;
 					else
 						var_speed_gen = 0;
-					
-					//计算连续进化速度慢的代数
+
+					// 计算连续进化速度慢的代数
 					double nttc = 0;
 					for (S s : CH)
 						nttc += s.getTimecost();
@@ -928,16 +1017,16 @@ public class DR {
 					else
 						speed_gen = 0;
 					lttc = nttc;
-					
-					//相对误差小&&进化速度慢
+
+					// 相对误差小&&进化速度慢
 					if (var_speed_gen > R.var_and_speed_Gen
 							&& speed_gen > R.var_and_speed_Gen) {
 						System.err.println("(相对误差小&&进化速度慢)这样的情况超过若干代如"
 								+ R.var_and_speed_Gen + "代");
 						break;
 					}
-					
-					//进化速度慢
+
+					// 进化速度慢
 					if (speed_gen > R.speed_Gen) {
 						System.err.println("(进化速度慢)这样的情况超过若干代如" + R.speed_Gen
 								+ "代");
@@ -1461,6 +1550,21 @@ public class DR {
 	public static void printlnLineInfo(Object s) {
 		System.out.println(new Throwable().getStackTrace()[1] + "\n" + "at:"
 				+ new Date().toLocaleString() + "-->" + s);
+	}
+
+	private static class exit implements Runnable {
+		static Scanner scanner = new Scanner(System.in);
+		static int i = 0;
+
+		public void run() {
+			while (!exit) {
+				i = scanner.nextInt();
+				if (i == 0) {
+					exit = true;
+				}
+			}
+		}
+
 	}
 
 }
