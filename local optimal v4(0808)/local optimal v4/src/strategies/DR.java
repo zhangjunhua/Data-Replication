@@ -45,115 +45,115 @@ public class DR {
 	public static void main(String[] args) throws IOException {
 		new Thread(new exit()).start();
 		while (!exit) {
+			test224_5();
+		}
+	}
 
-			// 224、225
-			{
-				int[] dcnum = { 5, 10, 15, 20, 25 };
-				for (int i = 0; i < dcnum.length; i++) {
-					R.maxDCnum = dcnum[i];
-					R.minDCnum = dcnum[i];
-					R.maxiDSnum = 30;
-					R.miniDSnum = 30;
-					R.maxTnum = R.maxiDSnum / 2;
-					R.minTnum = R.maxTnum;
+	public static void test224_5() throws IOException {
+		int[] dcnum = { 10, 15, 20, 25, 30 };
+		for (int i = 0; i < dcnum.length; i++) {
+			R.maxDCnum = dcnum[i];
+			R.minDCnum = dcnum[i];
+			R.maxiDSnum = 30;
+			R.miniDSnum = 30;
+			R.maxTnum = R.maxiDSnum / 2;
+			R.minTnum = R.maxTnum;
 
-					// ================无副本策略=================
-					dataSets = DataSets.getNewInstanceofDataSets();
-					tasks = Tasks.getNewInstanceofTasks();
-					cloud = Cloud.getNewInstanceofCloud();
-					System.err.println("Start & CreateData");
+			// ================无副本策略=================
+			dataSets = DataSets.getNewInstanceofDataSets();
+			tasks = Tasks.getNewInstanceofTasks();
+			cloud = Cloud.getNewInstanceofCloud();
+			System.err.println("Start & CreateData");
 
-					readandwrite.readConfiguration();
+			readandwrite.readConfiguration();
 
-					CreateRandomData.newfolderandrstconf();
-					CreateRandomData.createData();
-					CreateRandomData.writeArgs();
+			CreateRandomData.newfolderandrstconf();
+			CreateRandomData.createData();
+			CreateRandomData.writeArgs();
 
-					System.err.println("ReadData");
-					readandwrite.readDatas2();
-					System.err.println("ReadData finished");
+			System.err.println("ReadData");
+			readandwrite.readDatas2();
+			System.err.println("ReadData finished");
 
-					Strategy.initialize();
+			Strategy.initialize();
 
-					System.err.println("The Heredity Begin!");
-					ArrayList<Strategy.S> CH1 = Strategy.Heredity();
-					System.err.println("The Heredity End!");
-					// ==================本文策略==================
-					dataSets = DataSets.getNewInstanceofDataSets();
-					tasks = Tasks.getNewInstanceofTasks();
-					cloud = Cloud.getNewInstanceofCloud();
-					System.err.println("Start & CreateData");
+			System.err.println("The Heredity Begin!");
+			ArrayList<Strategy.S> CH1 = Strategy.Heredity();
+			System.err.println("The Heredity End!");
+			// ==================本文策略==================
+			dataSets = DataSets.getNewInstanceofDataSets();
+			tasks = Tasks.getNewInstanceofTasks();
+			cloud = Cloud.getNewInstanceofCloud();
+			System.err.println("Start & CreateData");
 
-					System.err.println("ReadData");
-					readandwrite.readDatas();
-					System.err.println("ReadData finished");
+			System.err.println("ReadData");
+			readandwrite.readDatas();
+			System.err.println("ReadData finished");
 
-					Strategy.initialize();
+			Strategy.initialize();
 
-					System.err.println("The Heredity Begin!");
-					ArrayList<Strategy.S> CH2 = Strategy.Heredity();
-					System.err.println("The Heredity End!");
-					// ================hadoop=======================
-					Strategy.S hadoop = Strategy.S.getRandomS();
-					Strategy.TimeAndTransAndMoveCosttotal(hadoop);
+			System.err.println("The Heredity Begin!");
+			ArrayList<Strategy.S> CH2 = Strategy.Heredity();
+			System.err.println("The Heredity End!");
+			// ================hadoop=======================
+			Strategy.S hadoop = Strategy.S.getRandomS();
+			Strategy.TimeAndTransAndMoveCosttotal(hadoop);
 
-					readandwrite.OutputTheResult(CH1, CH2, hadoop);
-				}
-			}
-			// 227、229
-			// {
-			// int[] dsnum = { 10, 20, 30, 40, 50 };
-			// for (int i = 0; i < dsnum.length; i++) {
-			// R.maxiDSnum = dsnum[i];
-			// R.miniDSnum = dsnum[i];
-			// R.maxDCnum = 15;
-			// R.minDCnum = 15;
-			// R.maxTnum = R.maxiDSnum / 2;
-			// R.minTnum = R.maxTnum;
-			//
-			// // ================无副本策略=================
-			// dataSets = DataSets.getNewInstanceofDataSets();
-			// tasks = Tasks.getNewInstanceofTasks();
-			// cloud = Cloud.getNewInstanceofCloud();
-			// System.err.println("Start & CreateData");
-			//
-			// readandwrite.readConfiguration();
-			//
-			// CreateRandomData.newfolderandrstconf();
-			// CreateRandomData.createData();
-			// CreateRandomData.writeArgs();
-			//
-			// System.err.println("ReadData");
-			// readandwrite.readDatas2();
-			// System.err.println("ReadData finished");
-			//
-			// Strategy.initialize();
-			//
-			// System.err.println("The Heredity Begin!");
-			// ArrayList<Strategy.S> CH1 = Strategy.Heredity();
-			// System.err.println("The Heredity End!");
-			// // ==================本文策略==================
-			// dataSets = DataSets.getNewInstanceofDataSets();
-			// tasks = Tasks.getNewInstanceofTasks();
-			// cloud = Cloud.getNewInstanceofCloud();
-			// System.err.println("Start & CreateData");
-			//
-			// System.err.println("ReadData");
-			// readandwrite.readDatas();
-			// System.err.println("ReadData finished");
-			//
-			// Strategy.initialize();
-			//
-			// System.err.println("The Heredity Begin!");
-			// ArrayList<Strategy.S> CH2 = Strategy.Heredity();
-			// System.err.println("The Heredity End!");
-			// // ================hadoop=======================
-			// Strategy.S hadoop = Strategy.S.getRandomS();
-			// Strategy.TimeAndTransAndMoveCosttotal(hadoop);
-			//
-			// readandwrite.OutputTheResult(CH1, CH2, hadoop);
-			// }
-			// }
+			readandwrite.OutputTheResult(CH1, CH2, hadoop);
+		}
+	}
+
+	public static void test227_9() throws IOException {
+		int[] dsnum = { 10, 20, 30, 40, 50 };
+		for (int i = 0; i < dsnum.length; i++) {
+			R.maxiDSnum = dsnum[i];
+			R.miniDSnum = dsnum[i];
+			R.maxDCnum = 20;
+			R.minDCnum = 20;
+			R.maxTnum = R.maxiDSnum / 2;
+			R.minTnum = R.maxTnum;
+
+			// ================无副本策略=================
+			dataSets = DataSets.getNewInstanceofDataSets();
+			tasks = Tasks.getNewInstanceofTasks();
+			cloud = Cloud.getNewInstanceofCloud();
+			System.err.println("Start & CreateData");
+
+			readandwrite.readConfiguration();
+
+			CreateRandomData.newfolderandrstconf();
+			CreateRandomData.createData();
+			CreateRandomData.writeArgs();
+
+			System.err.println("ReadData");
+			readandwrite.readDatas2();
+			System.err.println("ReadData finished");
+
+			Strategy.initialize();
+
+			System.err.println("The Heredity Begin!");
+			ArrayList<Strategy.S> CH1 = Strategy.Heredity();
+			System.err.println("The Heredity End!");
+			// ==================本文策略==================
+			dataSets = DataSets.getNewInstanceofDataSets();
+			tasks = Tasks.getNewInstanceofTasks();
+			cloud = Cloud.getNewInstanceofCloud();
+			System.err.println("Start & CreateData");
+
+			System.err.println("ReadData");
+			readandwrite.readDatas();
+			System.err.println("ReadData finished");
+
+			Strategy.initialize();
+
+			System.err.println("The Heredity Begin!");
+			ArrayList<Strategy.S> CH2 = Strategy.Heredity();
+			System.err.println("The Heredity End!");
+			// ================hadoop=======================
+			Strategy.S hadoop = Strategy.S.getRandomS();
+			Strategy.TimeAndTransAndMoveCosttotal(hadoop);
+
+			readandwrite.OutputTheResult(CH1, CH2, hadoop);
 		}
 	}
 

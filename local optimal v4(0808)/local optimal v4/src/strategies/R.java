@@ -20,8 +20,8 @@ public final class R {
 	public static double minDsSize = 17.6;
 	public static double maxDsSize = 26.4;
 
-	public static int maxCopyno = 2;
-	public static int minCopyno = 2;
+	public static int maxCopyno = 8;
+	public static int minCopyno = 8;
 
 	public static int maxTnum = 6;
 	public static int minTnum = 6;
