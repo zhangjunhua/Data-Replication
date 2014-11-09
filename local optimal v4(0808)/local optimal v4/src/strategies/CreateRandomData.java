@@ -39,9 +39,14 @@ public class CreateRandomData {
 			for (Entry<String, String> entry : R.configerationhMap.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
-				value = value.substring(0, value.length() - 1)
-						+ (Integer
-								.parseInt(value.substring(value.length() - 1)) + 1);
+				if (key.equals("outputdatafolder")) {
+					value = value.substring(0, 10)
+							+ (Integer.parseInt(value.substring(10)) + 1);
+				}if(key.equals("inputdatafolder")){
+					value = value.substring(0, 9)
+							+ (Integer.parseInt(value.substring(9)) + 1);
+				}
+
 				R.configerationhMap.put(key, value);
 				bufferedWriter.write(key + "\t " + value + "\n");
 			}
