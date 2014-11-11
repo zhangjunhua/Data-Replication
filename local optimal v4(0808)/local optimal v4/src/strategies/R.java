@@ -25,8 +25,8 @@ public final class R {
 
 	public static int maxTnum = 15;
 	public static int minTnum = 15;
-	public static int maxIDS = 13;
-	public static int minIDS = 4;
+	public static int maxIDS = 3;
+	public static int minIDS = 1;
 
 	public static double lamda = 0.87723824;
 	public static double variation = 0.23423242;

@@ -46,7 +46,6 @@ public class CreateRandomData {
 					value = value.substring(0, 9)
 							+ (Integer.parseInt(value.substring(9)) + 1);
 				}
-
 				R.configerationhMap.put(key, value);
 				bufferedWriter.write(key + "\t " + value + "\n");
 			}

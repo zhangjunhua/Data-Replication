@@ -36,19 +36,25 @@ public class DR {
 	static DataSets dataSets = DataSets.getInstanceofDataSets();
 	static Tasks tasks = Tasks.getInstanceofTasks();
 	static Cloud cloud = Cloud.getInstanceofCloud();
-
+	public static boolean exit=false;
 	/**
 	 * @param args
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-
+		new Thread(new exit()).start();
+		while (!exit){
+			test2014_11_9();
+		}
+	}
+	
+	public static void test2014_11_9() throws IOException{
 		for (int testnum = 1; testnum <= 10; testnum++) {
 			readandwrite.readConfiguration();
 			CreateRandomData.newfolderandrstconf();
 			CreateRandomData.createData();
 			CreateRandomData.writeArgs();
-			for (int copyno = 1; copyno <= 10; copyno++) {
+			for (int copyno = 1; copyno <= 4; copyno++) {
 				dataSets = DataSets.getNewInstanceofDataSets();
 				tasks = Tasks.getNewInstanceofTasks();
 				cloud = Cloud.getNewInstanceofCloud();
@@ -64,6 +70,11 @@ public class DR {
 				ArrayList<Strategy.S> CH = Strategy.Heredity();
 				readandwrite.OutputTheResult(CH, copyno);
 				System.err.println("The Heredity End!");
+				
+				Strategy.S s=Strategy.S.getRandomS();
+				Strategy.TimeAndTransAndMoveCosttotal(s);
+				
+				readandwrite.OutputOneSolution(s, "rand"+copyno);
 			}
 		}
 	}
@@ -415,20 +426,28 @@ public class DR {
 			}
 
 		}
-
+		/**
+		 * 从Ss里面获得最优解，输出
+		 * @param Ss
+		 * @param copyno
+		 */
 		public static void OutputTheResult(ArrayList<Strategy.S> Ss, int copyno) {
-
-			// TODO Auto-generated method stub
-			int movetimes = 0;
-			double transcost = 0;
+			Strategy.S S = null;
 			double timecost = Double.MAX_VALUE;
 			for (strategies.DR.Strategy.S s : Ss)
 				if (s.getTimecost() < timecost) {
 					timecost = s.getTimecost();
-					movetimes = s.getMovetimes();
-					transcost = s.getTranscost();
+					S=s;
 				}
-			File file = new File(R.FOLDER + R.outputFolder + "result" + copyno
+			OutputOneSolution(S, "result" + copyno);
+		}
+		
+		
+		public static void OutputOneSolution(Strategy.S s, String filename) {
+			int movetimes = s.getMovetimes();
+			double transcost = s.getTranscost();
+			double timecost = s.getTimecost();
+			File file = new File(R.FOLDER + R.outputFolder + filename
 					+ ".txt");
 			try {
 				BufferedWriter bufferedWriter = new BufferedWriter(
@@ -446,9 +465,7 @@ public class DR {
 
 				bufferedWriter.flush();
 				bufferedWriter.close();
-
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -1462,5 +1479,20 @@ public class DR {
 		System.out.println(new Throwable().getStackTrace()[1] + "\n" + "at:"
 				+ new Date().toLocaleString() + "-->" + s);
 	}
+	
+	private static class exit implements Runnable {
+	static Scanner scanner = new Scanner(System.in);
+	static int i = 0;
+
+	public void run() {
+		while (!exit) {
+			i = scanner.nextInt();
+			if (i == 0) {
+				exit = true;
+			}
+		}
+	}
+
+}
 
 }
