@@ -27,9 +27,6 @@ import org.dom4j.io.XMLWriter;
  * 为了生成合理的测试数据，测试数据的生成顺序为：数据中心及带宽->数据集和任务集->数据集副本集合。（待优化）
  */
 
-
-
-
 public class CreateRandomData {
 	static Random random = new Random();
 	public static Scanner scanner;
@@ -41,9 +38,15 @@ public class CreateRandomData {
 			for (Entry<String, String> entry : R.configerationhMap.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
-				value = value.substring(0, value.length() - 1)
-						+ (Integer
-								.parseInt(value.substring(value.length() - 1)) + 1);
+				if (key.equals("outputdatafolder")) {
+					value = value.substring(0, 10)
+							+ (Integer.parseInt(value.substring(10)) + 1);
+				}
+				if (key.equals("inputdatafolder")) {
+					value = value.substring(0, 9)
+							+ (Integer.parseInt(value.substring(9)) + 1);
+				}
+
 				R.configerationhMap.put(key, value);
 				bufferedWriter.write(key + "\t " + value + "\n");
 			}
