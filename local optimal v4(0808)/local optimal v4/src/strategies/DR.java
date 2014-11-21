@@ -36,19 +36,136 @@ public class DR {
 	static DataSets dataSets = DataSets.getInstanceofDataSets();
 	static Tasks tasks = Tasks.getInstanceofTasks();
 	static Cloud cloud = Cloud.getInstanceofCloud();
-	public static boolean exit=false;
+	public static boolean exit = false;
+
 	/**
 	 * @param args
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		new Thread(new exit()).start();
-		while (!exit){
-			test2014_11_9();
+		while (!exit) {
+			test2014_11_20();
 		}
 	}
-	
-	public static void test2014_11_9() throws IOException{
+
+	/**
+	 * hadoop 和 遗传算法 的比较 科学工作流规模不同，其它相同
+	 * 
+	 * @throws IOException
+	 */
+	public static void test2014_11_20() throws IOException {
+		{
+			/*
+			 * 数据集：【10:5:30】任务数:[5,8,10,13,15] 数据副本数：3 数据中心数：9
+			 */
+			R.minDCnum = R.maxDCnum = 9;
+			R.maxCopyno = R.minCopyno = 1;
+			int copyno = 3;
+			for (int i = 0; i < 10; i++) {
+				for (int dsn = 10; dsn <= 30; dsn += 5) {
+					// 初始化数据
+					{
+						R.maxiDSnum = R.miniDSnum = dsn;
+						if (dsn % 2 == 0) {
+							R.minTnum = R.maxTnum = dsn / 2;
+						} else {
+							R.minTnum = dsn / 2;
+							R.maxTnum = R.minTnum + 1;
+						}
+					}
+
+					readandwrite.readConfiguration();
+					CreateRandomData.newfolderandrstconf();
+					CreateRandomData.createData();
+					CreateRandomData.writeArgs();
+
+					dataSets = DataSets.getNewInstanceofDataSets();
+					tasks = Tasks.getNewInstanceofTasks();
+					cloud = Cloud.getNewInstanceofCloud();
+
+					System.err.println("ReadData");
+					readandwrite.readDatas(copyno);
+					System.err.println("ReadData finished");
+
+					// 初始化Strategy
+					Strategy.initialize();
+
+					System.err.println("The Heredity Begin!");
+					ArrayList<Strategy.S> CH = Strategy.Heredity();
+					readandwrite.OutputTheResult(CH, dsn);
+					System.err.println("The Heredity End!");
+
+					Strategy.S s = Strategy.S.getRandomS();
+					Strategy.TimeAndTransAndMoveCosttotal_withoutSc(s);
+
+					readandwrite.OutputOneSolution(s, "rand" + dsn);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 在计算hadoop策略时，去掉Sc（任务调度）编码，在任务执行时再确认用哪一个副本
+	 * 
+	 * 而遗传算法策略依然用Sc编码，在任务执行前就确定调度哪个策略
+	 * 
+	 * @throws IOException
+	 */
+	public static void test2014_11_15() throws IOException {
+		/**
+		 * hadoop 和 遗传算法 的比较。 数据中心数不同，其它相同。
+		 */
+		{
+			/*
+			 * 数据集数：20 数据集大小：17.6~26.4 数据副本数：3 任务数：10
+			 */
+			R.maxiDSnum = R.miniDSnum = 20;
+			R.maxCopyno = R.minCopyno = 1;// 这个参数在构建数据的时候再修改，初始值为1
+			int copyno = 3;
+			R.maxTnum = R.minTnum = 10;
+
+			for (int i = 0; i < 10; i++) {// 测试个数为10的整数倍
+				for (int dc = 5; dc <= 13; dc = dc + 2) {
+
+					R.minDCnum = R.maxDCnum = dc;
+
+					readandwrite.readConfiguration();
+					CreateRandomData.newfolderandrstconf();
+					CreateRandomData.createData();
+					CreateRandomData.writeArgs();
+
+					dataSets = DataSets.getNewInstanceofDataSets();
+					tasks = Tasks.getNewInstanceofTasks();
+					cloud = Cloud.getNewInstanceofCloud();
+
+					System.err.println("ReadData");
+					readandwrite.readDatas(copyno);
+					System.err.println("ReadData finished");
+
+					// 初始化Strategy
+					Strategy.initialize();
+
+					System.err.println("The Heredity Begin!");
+					ArrayList<Strategy.S> CH = Strategy.Heredity();
+					readandwrite.OutputTheResult(CH, dc);
+					System.err.println("The Heredity End!");
+
+					Strategy.S s = Strategy.S.getRandomS();
+					Strategy.TimeAndTransAndMoveCosttotal_withoutSc(s);
+
+					readandwrite.OutputOneSolution(s, "rand" + dc);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 随机布局和遗传算法布局在不同副本下的对比实验 找出hadoop在高副本时数据传输代价依然很高的原因
+	 * 
+	 * @throws IOException
+	 */
+	public static void test2014_11_9() throws IOException {
 		for (int testnum = 1; testnum <= 10; testnum++) {
 			readandwrite.readConfiguration();
 			CreateRandomData.newfolderandrstconf();
@@ -70,11 +187,11 @@ public class DR {
 				ArrayList<Strategy.S> CH = Strategy.Heredity();
 				readandwrite.OutputTheResult(CH, copyno);
 				System.err.println("The Heredity End!");
-				
-				Strategy.S s=Strategy.S.getRandomS();
+
+				Strategy.S s = Strategy.S.getRandomS();
 				Strategy.TimeAndTransAndMoveCosttotal(s);
-				
-				readandwrite.OutputOneSolution(s, "rand"+copyno);
+
+				readandwrite.OutputOneSolution(s, "rand" + copyno);
 			}
 		}
 	}
@@ -426,29 +543,29 @@ public class DR {
 			}
 
 		}
+
 		/**
 		 * 从Ss里面获得最优解，输出
+		 * 
 		 * @param Ss
-		 * @param copyno
+		 * @param param
 		 */
-		public static void OutputTheResult(ArrayList<Strategy.S> Ss, int copyno) {
+		public static void OutputTheResult(ArrayList<Strategy.S> Ss, int param) {
 			Strategy.S S = null;
 			double timecost = Double.MAX_VALUE;
 			for (strategies.DR.Strategy.S s : Ss)
 				if (s.getTimecost() < timecost) {
 					timecost = s.getTimecost();
-					S=s;
+					S = s;
 				}
-			OutputOneSolution(S, "result" + copyno);
+			OutputOneSolution(S, "result" + param);
 		}
-		
-		
+
 		public static void OutputOneSolution(Strategy.S s, String filename) {
 			int movetimes = s.getMovetimes();
 			double transcost = s.getTranscost();
 			double timecost = s.getTimecost();
-			File file = new File(R.FOLDER + R.outputFolder + filename
-					+ ".txt");
+			File file = new File(R.FOLDER + R.outputFolder + filename + ".txt");
 			try {
 				BufferedWriter bufferedWriter = new BufferedWriter(
 						new FileWriter(file));
@@ -608,6 +725,79 @@ public class DR {
 					}
 				}
 			}
+		}
+
+		public static void TimeAndTransAndMoveCosttotal_withoutSc(S s) {
+			double cost = 0;
+			double transcost = 0;
+			int movecost = 0;
+			int i = 0;
+			Task t = tasksequence.get(i++);
+			while (i < tasksequence.size()) {// 按照任务执行先后次序遍历出每个任务
+				if (false) {// if(t是分支任务)
+					// for (每个分支){
+					// 记第i个分支对应的子流程为Pi ;
+					// 递归计算TimeCosttotal(DC, Pi, s), 结果记为costi;
+					// cost = cost + max{costi};
+					t = tasksequence.get(i++);
+				} else {
+					double mincost = Double.MAX_VALUE;
+					int tmovecost = 0;
+					double ttranscost = 0;
+					for (int j = 1; j <= cloud.getDataCenters().size(); j++) {// 遍历出每个数据中心
+						double sumcost = 0;
+						int summovecost = 0;
+						double sumtranscost = 0;
+
+						String tdc = cloud.getDataCenter(j).getName();
+						int tID = t.getID();
+						S.Gene[] Pa = s.getPa();
+
+						for (DataSet dataSet : t.getInputDataSets()) {// 遍历出出每个输入数据
+							String dName = dataSet.getName();
+							double dSize = dataSet.getDatasize();
+							int dId = dataSet.getID();
+							int copyno = dataSets.gettheCopyNum(dName);
+
+							int pointer = 0;
+							while (DescripDSC[pointer] != dId)
+								pointer++;
+
+							double mincostDSC = Double.MAX_VALUE;
+							for (int k = 0; k < copyno; k++) {// 遍历出每个输入数据的副本，找出最“临近”的那一个
+								int lc = Pa[pointer + k].getValueofGene();
+								String ddc = cloud.getDataCenter(lc).getName();
+								if (ddc.equals(tdc)) {
+									mincostDSC = 0;
+									break;
+								}
+								double bandwidth = cloud.getBandWidth(tdc, ddc);
+								double DSCcost = dSize / bandwidth;
+								if (DSCcost < mincostDSC)
+									mincostDSC = DSCcost;
+							}
+							if (mincostDSC == 0)
+								continue;
+							sumcost += mincostDSC;
+							sumtranscost += dSize;
+							summovecost++;
+						}
+						if (mincost > sumcost) {
+							mincost = sumcost;
+							tmovecost = summovecost;
+							ttranscost = sumtranscost;
+						}
+					}
+					cost += mincost;
+					movecost += tmovecost;
+					transcost += ttranscost;
+					t = tasksequence.get(i++);
+				}
+			}
+			s.setTimecost(cost);
+			s.setMovetimes(movecost);
+			s.setTranscost(transcost);
+
 		}
 
 		public static void TimeAndTransAndMoveCosttotal(S s) {
@@ -930,13 +1120,13 @@ public class DR {
 					break;
 				}
 				if (curGen > R.minGen) {
-					//计算连续误差小的代数
+					// 计算连续误差小的代数
 					if ((maxtimecost - mintimecost) / maxtimecost < R.variance)
 						var_speed_gen++;
 					else
 						var_speed_gen = 0;
-					
-					//计算连续进化速度慢的代数
+
+					// 计算连续进化速度慢的代数
 					double nttc = 0;
 					for (S s : CH)
 						nttc += s.getTimecost();
@@ -945,16 +1135,16 @@ public class DR {
 					else
 						speed_gen = 0;
 					lttc = nttc;
-					
-					//相对误差小&&进化速度慢
+
+					// 相对误差小&&进化速度慢
 					if (var_speed_gen > R.var_and_speed_Gen
 							&& speed_gen > R.var_and_speed_Gen) {
 						System.err.println("(相对误差小&&进化速度慢)这样的情况超过若干代如"
 								+ R.var_and_speed_Gen + "代");
 						break;
 					}
-					
-					//进化速度慢
+
+					// 进化速度慢
 					if (speed_gen > R.speed_Gen) {
 						System.err.println("(进化速度慢)这样的情况超过若干代如" + R.speed_Gen
 								+ "代");
@@ -1479,20 +1669,22 @@ public class DR {
 		System.out.println(new Throwable().getStackTrace()[1] + "\n" + "at:"
 				+ new Date().toLocaleString() + "-->" + s);
 	}
-	
-	private static class exit implements Runnable {
-	static Scanner scanner = new Scanner(System.in);
-	static int i = 0;
 
-	public void run() {
-		while (!exit) {
-			i = scanner.nextInt();
-			if (i == 0) {
-				exit = true;
+	private static class exit implements Runnable {
+		static Scanner scanner = new Scanner(System.in);
+		static int i = 0;
+
+		public void run() {
+			System.out.println("??");
+			while (!exit) {
+				i = scanner.nextInt();
+				System.out.println("bb");
+				if (i == 0) {
+					exit = true;
+				}
 			}
 		}
-	}
 
-}
+	}
 
 }
