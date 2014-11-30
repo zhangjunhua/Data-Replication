@@ -45,7 +45,52 @@ public class DR {
 	public static void main(String[] args) throws IOException {
 		new Thread(new exit()).start();
 		while (!exit) {
-			test2014_11_20();
+			test2014_11_25();
+		}
+	}
+	
+	public static void test2014_11_25() throws IOException {
+		{
+			int copyno = 3;
+			for (int i = 0; i < 10; i++) {
+				for (int dsn = 10; dsn <= 30; dsn += 5) {
+					// 初始化数据
+					{
+						R.maxiDSnum = R.miniDSnum = dsn;
+						if (dsn % 2 == 0) {
+							R.minTnum = R.maxTnum = dsn / 2;
+						} else {
+							R.minTnum = dsn / 2;
+							R.maxTnum = R.minTnum + 1;
+						}
+					}
+					for (int dc = 5; dc <= 13; dc = dc + 2) {
+						R.maxCopyno = R.minCopyno = 1;
+						R.minDCnum = R.maxDCnum = dc;
+
+						readandwrite.readConfiguration();
+						CreateRandomData.newfolderandrstconf();
+						CreateRandomData.createData();
+						CreateRandomData.writeArgs();
+
+						dataSets = DataSets.getNewInstanceofDataSets();
+						tasks = Tasks.getNewInstanceofTasks();
+						cloud = Cloud.getNewInstanceofCloud();
+
+						System.err.println("ReadData");
+						readandwrite.readDatas(copyno);
+						System.err.println("ReadData finished");
+
+						// 初始化Strategy
+						Strategy.initialize();
+
+						System.err.println("The Heredity Begin!");
+						ArrayList<Strategy.S> CH = Strategy.Heredity();
+						readandwrite.OutputTheResult(CH, dsn);
+						System.err.println("The Heredity End!");
+					}
+				}
+			}
 		}
 	}
 
