@@ -14,7 +14,7 @@ local.properties
 .classpath
 .project
 .DS_Store
-
+*.rar
 #other
 .settings/
 /data/
