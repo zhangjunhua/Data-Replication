@@ -1,4 +1,4 @@
-package strategies;
+ï»¿package strategies;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,18 +20,22 @@ import org.dom4j.io.XMLWriter;
 
 //
 /**
- * ÓÃÓÚ¹¹ÔìËæ»úµÄ²âÊÔÊı¾İ£¬ÕâĞ©Ëæ»úµÄ²âÊÔÊı¾İÒÔxmlÎÄ¼şµÄĞÎÊ½·ÅÔÚÎÄ¼ş¼ĞÀï
+ * ç”¨äºæ„é€ éšæœºçš„æµ‹è¯•æ•°æ®ï¼Œè¿™äº›éšæœºçš„æµ‹è¯•æ•°æ®ä»¥xmlæ–‡ä»¶çš„å½¢å¼æ”¾åœ¨æ–‡ä»¶å¤¹é‡Œ
  * 
- * ¿ÆÑ§¹¤×÷Á÷·ÖÎªÈÎÎñ£¬Êı¾İºÍ¿ØÖÆÁ÷£¬ÓÉÓÚÕâÀï¿ØÖÆÁ÷µÄ²»Í¬¶Ô±¾³ÌĞòÔËĞĞµÄ½á¹ûÃ»ÓĞÊµÖÊĞÔµÄÓ°Ïì£¬
- * Ä¿Ç°ÔİÊ±²ÉÓÃÏßĞÔ¿ØÖÆÁ÷³Ì£¨ÒÔºóÓĞÊ±¼ä½«Æä¸Ä½øÎª¸ü¼Ó·ûºÏÊµ¼ÊÇé¿öµÄÁ÷³Ì£©£¬²¢½«¿ØÖÆÁ÷³ÌÒÔÍ¼µÄĞÎÊ½´æ·ÅÔÚÈÎÎñµÄ¼¯ºÏÖĞ¡£
+ * ç§‘å­¦å·¥ä½œæµåˆ†ä¸ºä»»åŠ¡ï¼Œæ•°æ®å’Œæ§åˆ¶æµï¼Œç”±äºè¿™é‡Œæ§åˆ¶æµçš„ä¸åŒå¯¹æœ¬ç¨‹åºè¿è¡Œçš„ç»“æœæ²¡æœ‰å®è´¨æ€§çš„å½±å“ï¼Œ
+ * ç›®å‰æš‚æ—¶é‡‡ç”¨çº¿æ€§æ§åˆ¶æµç¨‹ï¼ˆä»¥åæœ‰æ—¶é—´å°†å…¶æ”¹è¿›ä¸ºæ›´åŠ ç¬¦åˆå®é™…æƒ…å†µçš„æµç¨‹ï¼‰ï¼Œå¹¶å°†æ§åˆ¶æµç¨‹ä»¥å›¾çš„å½¢å¼å­˜æ”¾åœ¨ä»»åŠ¡çš„é›†åˆä¸­ã€‚
  * 
- * ÎªÁËÉú³ÉºÏÀíµÄ²âÊÔÊı¾İ£¬²âÊÔÊı¾İµÄÉú³ÉË³ĞòÎª£ºÊı¾İÖĞĞÄ¼°´ø¿í->Êı¾İ¼¯ºÍÈÎÎñ¼¯->Êı¾İ¼¯¸±±¾¼¯ºÏ¡££¨´ıÓÅ»¯£©
+ * ä¸ºäº†ç”Ÿæˆåˆç†çš„æµ‹è¯•æ•°æ®ï¼Œæµ‹è¯•æ•°æ®çš„ç”Ÿæˆé¡ºåºä¸ºï¼šæ•°æ®ä¸­å¿ƒåŠå¸¦å®½->æ•°æ®é›†å’Œä»»åŠ¡é›†->æ•°æ®é›†å‰¯æœ¬é›†åˆã€‚ï¼ˆå¾…ä¼˜åŒ–ï¼‰
  */
 
 public class CreateRandomData {
 	static Random random = new Random();
 	public static Scanner scanner;
 
+	/**
+	 * é…ç½®ä¸»è¦ä¸º inputdatafolder å’Œ outputdatafolder
+	 * æ›´æ–°configurationæ–‡ä»¶é‡Œé¢çš„é…ç½®ï¼Œæ›´æ–°Ræ–‡ä»¶é‡Œé¢çš„é…ç½®
+	 */
 	public static void newfolderandrstconf() {
 		try {
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
@@ -66,8 +70,8 @@ public class CreateRandomData {
 		double totalstorage = 0;
 		double totalsize = 0;
 
-		// ¹¹½¨Êı¾İÖĞĞÄ¼°´ø¿í
-		DR.printlnLineInfo("¹¹½¨Êı¾İÖĞĞÄ¼°´ø¿í");
+		// æ„å»ºæ•°æ®ä¸­å¿ƒåŠå¸¦å®½
+		DR.printlnLineInfo("æ„å»ºæ•°æ®ä¸­å¿ƒåŠå¸¦å®½");
 		final int DCnum = randomint(R.minDCnum, R.maxDCnum);
 		DC[] dcs = new DC[DCnum];
 		for (int i = 0; i < DCnum; i++) {
@@ -80,8 +84,8 @@ public class CreateRandomData {
 		for (int i = 0; i < bandWidthes.length; i++) {
 			bandWidthes[i] = randomdouble(R.minBandWith, R.maxBandWidth);
 		}
-		// ¹¹½¨³õÊ¼Êı¾İ¼¯¼°ÈÎÎñ¼¯
-		DR.printlnLineInfo("¹¹½¨³õÊ¼Êı¾İ¼¯¼°ÈÎÎñ¼¯");
+		// æ„å»ºåˆå§‹æ•°æ®é›†åŠä»»åŠ¡é›†
+		DR.printlnLineInfo("æ„å»ºåˆå§‹æ•°æ®é›†åŠä»»åŠ¡é›†");
 		final int DSnum = randomint(R.miniDSnum, R.maxiDSnum);
 		final int Tnum = randomint(R.minTnum, R.maxTnum);
 		DS[] dss = new DS[DSnum + Tnum];
@@ -126,9 +130,9 @@ public class CreateRandomData {
 			}
 		}
 		// ==========================================================================================================================
-		// ½«¹¹½¨ºÃµÄËæ»ú²âÊÔÊı¾İĞ´ÈëÎÄ¼ş
-		DR.printlnLineInfo("½«¹¹½¨ºÃµÄËæ»ú²âÊÔÊı¾İĞ´ÈëÎÄ¼ş");
-		// Êı¾İÖĞĞÄºÍÍøÂç
+		// å°†æ„å»ºå¥½çš„éšæœºæµ‹è¯•æ•°æ®å†™å…¥æ–‡ä»¶
+		DR.printlnLineInfo("å°†æ„å»ºå¥½çš„éšæœºæµ‹è¯•æ•°æ®å†™å…¥æ–‡ä»¶");
+		// æ•°æ®ä¸­å¿ƒå’Œç½‘ç»œ
 		{
 			Document cloudDocument = DocumentHelper.createDocument();
 			Element rootCloudElement = cloudDocument.addElement("cloud");
@@ -155,7 +159,7 @@ public class CreateRandomData {
 			writer.write(cloudDocument);
 			writer.close();
 		}
-		// ´øÓĞ¸±±¾µÄÊı¾İ¼¯
+		// å¸¦æœ‰å‰¯æœ¬çš„æ•°æ®é›†
 		{
 			Document datasetsDocument = DocumentHelper.createDocument();
 			Element rootElement = datasetsDocument.addElement("datasets");
@@ -185,7 +189,7 @@ public class CreateRandomData {
 			writer.close();
 		}
 
-		// ÈÎÎñ¼¯
+		// ä»»åŠ¡é›†
 		{
 			Document controlDocument = DocumentHelper.createDocument();
 			Element rootElement = controlDocument.addElement("tasks");
@@ -204,7 +208,7 @@ public class CreateRandomData {
 		}
 	}
 
-	// ¼ÇÂ¼ÅäÖÃĞÅÏ¢
+	// è®°å½•é…ç½®ä¿¡æ¯
 	public static void writeArgs() {
 		File file = new File(R.FOLDER + R.inputFolder + "args.txt");
 		try {

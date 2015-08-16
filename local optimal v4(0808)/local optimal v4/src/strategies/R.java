@@ -1,4 +1,4 @@
-package strategies;
+ï»¿package strategies;
 
 import java.util.HashMap;
 
@@ -6,15 +6,15 @@ import java.util.HashMap;
  * @author Admin
  */
 public final class R {
-	// Êı¾İÖĞĞÄ
+	// æ•°æ®ä¸­å¿ƒ
 	public static int maxDCnum = 15;
 	public static int minDCnum = 15;
 	public static double maxDCstorage = 1000;
 	public static double minDCstorage = 1000;
-	// ´ø¿í
+	// å¸¦å®½
 	public static double maxBandWidth = 10;
 	public static double minBandWith = 5;
-	// Êı¾İ¼¯
+	// æ•°æ®é›†
 	public static int maxiDSnum = 30;
 	public static int miniDSnum = 30;
 	public static double minDsSize = 17.6;
@@ -32,7 +32,7 @@ public final class R {
 	public static double variation = 0.23423242;
 	public static double chiasma = 0.88738278;
 
-	// ³ÌĞòÍË³ö¿ØÖÆÌõ¼ş
+	// ç¨‹åºé€€å‡ºæ§åˆ¶æ¡ä»¶
 	public static double variance = 0.001;
 	public static double speed = 0.001;
 	public static int var_and_speed_Gen = 10;

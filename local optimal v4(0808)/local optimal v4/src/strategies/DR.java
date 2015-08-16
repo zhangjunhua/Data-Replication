@@ -36,6 +36,7 @@ public class DR {
 	static DataSets dataSets = DataSets.getInstanceofDataSets();
 	static Tasks tasks = Tasks.getInstanceofTasks();
 	static Cloud cloud = Cloud.getInstanceofCloud();
+	static HashMap<String, Double> sumR_HashMap = new HashMap<String, Double>();
 	public static boolean exit = false;
 
 	/**
@@ -45,17 +46,87 @@ public class DR {
 	public static void main(String[] args) throws IOException {
 		new Thread(new exit()).start();
 		while (!exit) {
-			test2014_11_25();
+			test2015_8_13();
 		}
 	}
-	
+
+	/**
+	 * 2015年8月13日，张俊华 1.这次实验主要是8月data replica 论文的二审后，有一个minor
+	 * revision，提到输入数据集太多， 而我们之前的实验都是数据集的个数是任务数目的2倍，这个感觉跟实际的科学应用不太一样。
+	 * 2.另一方面，reviewer1就讲到关于每一步都使用input dataset的这种情况。every step a task needs
+	 * randomly one to three "original" data replica。但是实际的工作流并不是这样的，实际的工作流
+	 * 主要的original input dataset 是在一开始就被用到的。因此有问题
+	 * 
+	 * 这次实验主要用来说明：1、不管我们的数据集数量的多少，都ok，是一个general的算法，并不和实际的数据
+	 * 想关联；2、不管是什么时候输入的数据，都ok，仍然是一个general的算法，
+	 * 
+	 * 下面来说说主要的实验思路。 实验的思路主要是要构造多种不同的科学应用（工作流）。 有不同的任务，输入数据集数的比例。
+	 * 有不同的比例的输入数据，输出数据被用到。
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 要点： 1、为了尽早观察到实验结果，每次运行完一个时就将结果输出出来，监控实验进展。以便及时修改实验
+	 * 
+	 * @throws IOException
+	 * 
+	 */
+	public static void test2015_8_13() throws IOException {
+
+		/*
+		 * 2015年8月14日，实验A,数据集与任务数不是按照2：1， 而是多种情况 ds：(5~30:5)× task(5~30:5)
+		 * 
+		 * 副本：3
+		 */
+		testA_2015_8_14: {
+			int copyno = 3;
+			for (int ds_num = 5; ds_num <= 30; ds_num += 5) {
+				for (int task_num = 5; task_num <= 30; task_num += 5) {
+					// 初始化初始化DSnum和Tnum
+					R.maxiDSnum = R.miniDSnum = ds_num;
+					R.maxTnum = R.minTnum = task_num;
+					R.maxCopyno = R.minCopyno = 1;
+					R.minDCnum = R.maxDCnum = 9;
+
+					readandwrite.readConfiguration();
+					CreateRandomData.newfolderandrstconf();
+					CreateRandomData.createData();
+					CreateRandomData.writeArgs();
+
+					dataSets = DataSets.getNewInstanceofDataSets();
+					tasks = Tasks.getNewInstanceofTasks();
+					cloud = Cloud.getNewInstanceofCloud();
+
+					System.err.println("ReadData");
+					readandwrite.readDatas(copyno);
+					System.err.println("ReadData finished");
+
+					// 初始化Strategy
+					Strategy.initialize();
+
+					System.err.println("The Heredity Begin!");
+					ArrayList<Strategy.S> CH = Strategy.Heredity();
+					readandwrite.record_2015_8_14(CH, "every_results",
+							"sum_result", ds_num, task_num, sumR_HashMap);
+
+					System.err.println("The Heredity End!");
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * 遗传算法策略本身
+	 * 
+	 * @throws IOException
+	 */
 	public static void test2014_11_25() throws IOException {
 		{
 			int copyno = 3;
 			for (int i = 0; i < 10; i++) {
-				for (int dsn = 10; dsn <= 30; dsn += 5) {
-					// 初始化数据
-					{
+				for (int dsn = 10; dsn <= 30; dsn += 5) {// dsn指的是DS数目
+					{// 初始化DSnum和Tnum
 						R.maxiDSnum = R.miniDSnum = dsn;
 						if (dsn % 2 == 0) {
 							R.minTnum = R.maxTnum = dsn / 2;
@@ -269,6 +340,136 @@ public class DR {
 			}
 		}
 
+		/**
+		 * 将运行结果记录在一个文件里面，并进行统计
+		 * 
+		 * @param Ss
+		 * @param every_result_OPfile_name
+		 * @param analyze_result_OPfile_nameString
+		 * @throws IOException
+		 */
+		public static void record_2015_8_14(ArrayList<Strategy.S> Ss,
+				String every_result_OPfile_name,
+				String analyze_result_OPfile_nameString, int ds_num, int tnum,
+				HashMap<String, Double> sumRHashMap) throws IOException {
+			// 最佳策略
+			Strategy.S S = null;
+			{
+				double timecost = Double.MAX_VALUE;
+				for (strategies.DR.Strategy.S s : Ss) {
+					if (s.getTimecost() < timecost) {
+						timecost = s.getTimecost();
+						S = s;
+					}
+				}
+			}
+			{// 写every_result文件
+				int movetimes = S.getMovetimes();
+				double transcost = S.getTranscost();
+				double timecost = S.getTimecost();
+				// OutputOneSolution(S, "result" + param);
+				File every_result_OPfile = new File(R.FOLDER
+						+ every_result_OPfile_name + ".txt");
+				FileWriter every_result_OPfileFileWriter = new FileWriter(
+						every_result_OPfile, true);
+
+				BufferedWriter bufferedWriter = new BufferedWriter(
+						every_result_OPfileFileWriter);
+				bufferedWriter.write(R.configerationhMap
+						.get("outputdatafolder"));
+				bufferedWriter.newLine();
+				bufferedWriter.write("ds_num:" + ds_num);
+				bufferedWriter.write("tnum" + tnum);
+				bufferedWriter.write("timecost = ");
+				bufferedWriter.write("" + timecost);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("movetimes = ");
+				bufferedWriter.write("" + movetimes);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("transcost = ");
+				bufferedWriter.write("" + transcost);
+				bufferedWriter.newLine();
+				bufferedWriter.newLine();
+				bufferedWriter.flush();
+				bufferedWriter.close();
+				every_result_OPfileFileWriter.close();
+			}
+			{// 对hashmap进行变动
+				if (sumRHashMap.get(ds_num + " " + tnum + "MoveTimes") == null) {
+					sumRHashMap.put(ds_num + " " + tnum + "MoveTimes", 0.0);
+				}
+				if (sumRHashMap.get(ds_num + " " + tnum + "TransCost") == null) {
+					sumRHashMap.put(ds_num + " " + tnum + "TransCost", 0.0);
+				}
+				if (sumRHashMap.get(ds_num + " " + tnum + "TimeCost") == null) {
+					sumRHashMap.put(ds_num + " " + tnum + "TimeCost", 0.0);
+				}
+				sumRHashMap.put(
+						ds_num + " " + tnum + "MoveTimes",
+						sumRHashMap.get(ds_num + " " + tnum + "MoveTimes")
+								+ S.getMovetimes());
+				sumRHashMap.put(
+						ds_num + " " + tnum + "TransCost",
+						sumRHashMap.get(ds_num + " " + tnum + "TransCost")
+								+ S.getTranscost());
+				sumRHashMap.put(
+						ds_num + " " + tnum + "TimeCost",
+						sumRHashMap.get(ds_num + " " + tnum + "TimeCost")
+								+ S.getTimecost());
+			}
+			{// 写sumresult文件
+
+				// OutputOneSolution(S, "result" + param);
+				File every_result_OPfile = new File(R.FOLDER
+						+ analyze_result_OPfile_nameString + ".txt");
+				FileWriter every_result_OPfileFileWriter = new FileWriter(
+						every_result_OPfile);
+
+				BufferedWriter bufferedWriter = new BufferedWriter(
+						every_result_OPfileFileWriter);
+
+				bufferedWriter.write("movetimes：\n");
+				for (int i = 5; i <= 30; i += 5) {
+					for (int j = 5; j <= 30; j += 5) {
+						bufferedWriter.write(sumRHashMap.get(i + " " + j
+								+ "MoveTimes")
+								+ "\t");
+					}
+					bufferedWriter.newLine();
+				}
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("Transcost：\n");
+				for (int i = 5; i <= 30; i += 5) {
+					for (int j = 5; j <= 30; j += 5) {
+						bufferedWriter.write(sumRHashMap.get(i + " " + j
+								+ "TransCost")
+								+ "\t");
+					}
+					bufferedWriter.newLine();
+				}
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("TimeCost：\n");
+				for (int i = 5; i <= 30; i += 5) {
+					for (int j = 5; j <= 30; j += 5) {
+						bufferedWriter.write(sumRHashMap.get(i + " " + j
+								+ "TimeCost")
+								+ "\t");
+					}
+					bufferedWriter.newLine();
+				}
+				bufferedWriter.newLine();
+
+				bufferedWriter.flush();
+				bufferedWriter.close();
+				every_result_OPfileFileWriter.close();
+			}
+
+		}
+
 		public static void readDatas() {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			NodeList datasetNodeList = null;
@@ -432,6 +633,12 @@ public class DR {
 			}
 		}
 
+		/**
+		 * 根据指定的副本数，构造数据集（所读的数据集的副本数应该都为1
+		 * 
+		 * @param dataNodeList
+		 * @param copyno
+		 */
 		private static void constructData(NodeList dataNodeList, int copyno) {
 			for (int i = 0; i < dataNodeList.getLength(); i++) {
 				Element element = (Element) dataNodeList.item(i);
