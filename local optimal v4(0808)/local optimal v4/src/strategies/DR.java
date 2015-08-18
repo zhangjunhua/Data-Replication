@@ -45,10 +45,79 @@ public class DR {
 	public static void main(String[] args) throws IOException {
 		new Thread(new exit()).start();
 		while (!exit) {
-			test2014_11_25();
+			test2015_8_19();
 		}
 	}
-	
+
+	/**
+	 * 2014_11_25
+	 * 
+	 * 在计算hadoop策略时，去掉Sc（任务调度）编码，在任务执行时再确认用哪一个副本
+	 * 
+	 * 而遗传算法策略依然用Sc编码，在任务执行前就确定调度哪个策略
+	 * 
+	 * --------------
+	 * 
+	 * 2015_8_10
+	 * 
+	 * 这个实验室基于2014年11月25日Hadoop vs 遗传 在不同数据中心的对比来写的。
+	 * 
+	 * 这个实验和以前最主要的区别在于数据集的数目会比较小，任务数目可能会比较多？（这个通过多次实验待定）。而其他的不会变
+	 * 
+	 * 参数设置：dataset number：10， task number：20，data center number：5：2：13
+	 * 
+	 * 
+	 * 
+	 * @throws IOException
+	 */
+	public static void test2015_8_19() throws IOException {
+		/**
+		 * hadoop 和 遗传算法 的比较。 数据中心数不同，其它相同。
+		 */
+		{
+			/*
+			 * 数据集数：20 数据集大小：17.6~26.4 数据副本数：3 任务数：10
+			 */
+			R.maxiDSnum = R.miniDSnum = 10;
+			R.maxCopyno = R.minCopyno = 1;// 这个参数在构建数据的时候再修改，初始值为1
+			int copyno = 3;
+			R.maxTnum = R.minTnum = 20;
+
+			for (int i = 0; i < 10; i++) {// 测试个数为10的整数倍
+				for (int dc = 5; dc <= 13; dc = dc + 2) {
+
+					R.minDCnum = R.maxDCnum = dc;
+
+					readandwrite.readConfiguration();
+					CreateRandomData.newfolderandrstconf();
+					CreateRandomData.createData();
+					CreateRandomData.writeArgs();
+
+					dataSets = DataSets.getNewInstanceofDataSets();
+					tasks = Tasks.getNewInstanceofTasks();
+					cloud = Cloud.getNewInstanceofCloud();
+
+					System.err.println("ReadData");
+					readandwrite.readDatas(copyno);
+					System.err.println("ReadData finished");
+
+					// 初始化Strategy
+					Strategy.initialize();
+
+					System.err.println("The Heredity Begin!");
+					ArrayList<Strategy.S> CH = Strategy.Heredity();
+					readandwrite.OutputTheResult(CH, dc);
+					System.err.println("The Heredity End!");
+
+					Strategy.S s = Strategy.S.getRandomS();
+					Strategy.TimeAndTransAndMoveCosttotal_withoutSc(s);
+
+					readandwrite.OutputOneSolution(s, "rand" + dc);
+				}
+			}
+		}
+	}
+
 	public static void test2014_11_25() throws IOException {
 		{
 			int copyno = 3;
