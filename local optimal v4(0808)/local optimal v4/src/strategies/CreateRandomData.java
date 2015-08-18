@@ -46,7 +46,8 @@ public class CreateRandomData {
 				if (key.equals("outputdatafolder")) {
 					value = value.substring(0, 10)
 							+ (Integer.parseInt(value.substring(10)) + 1);
-				}if(key.equals("inputdatafolder")){
+				}
+				if (key.equals("inputdatafolder")) {
 					value = value.substring(0, 9)
 							+ (Integer.parseInt(value.substring(9)) + 1);
 				}
@@ -100,9 +101,9 @@ public class CreateRandomData {
 		}
 		for (int i = 0; i < DSnum + Tnum; i++) {
 			dss[i].size = randomdouble(R.minDsSize, R.maxDsSize);
-			if (i < DSnum)
-				dss[i].copyno = R.maxCopyno > 0 ? randomint(R.minCopyno,
-						R.maxCopyno) : randomint(1, 5);
+			// if (i < DSnum)
+			dss[i].copyno = R.maxCopyno > 0 ? randomint(R.minCopyno,
+					R.maxCopyno) : randomint(1, 5);
 			totalsize += dss[i].size * dss[i].copyno;
 			if (totalsize > totalstorage * R.lamda) {
 				totalsize = 0;
@@ -123,10 +124,23 @@ public class CreateRandomData {
 		for (int i = 0; i < Tnum; i++) {
 			ts[i].needed = randomint(R.minIDS, R.maxIDS);
 			for (int j = 0; j < ts[i].needed; j++) {
-				int randd = randomint(0, DSnum + i - 2);
-				if (!dss[randd].usedtasks.contains(ts[i].name)) {
-					dss[randd].usedtasks.add(ts[i].name);
+				double random_Deci = randomdouble(0, 1);
+				if (random_Deci < R.getOrigInputDS_ratio() || i == 0) {// 使用originalDS
+					int randd = randomint(0, DSnum - 1);
+					if (!dss[randd].usedtasks.contains(ts[i].name)) {
+						dss[randd].usedtasks.add(ts[i].name);
+					} else {
+						j--;
+					}
+				} else {// 使用generatedDS
+					int randd = randomint(DSnum, DSnum + i - 1);
+					if (!dss[randd].usedtasks.contains(ts[i].name)) {
+						dss[randd].usedtasks.add(ts[i].name);
+					} else {
+						j--;
+					}
 				}
+
 			}
 		}
 		// ==========================================================================================================================
@@ -163,7 +177,7 @@ public class CreateRandomData {
 		{
 			Document datasetsDocument = DocumentHelper.createDocument();
 			Element rootElement = datasetsDocument.addElement("datasets");
-			for (int i = 0; i < DSnum; i++) {
+			for (int i = 0; i < DSnum + Tnum; i++) {
 				for (int j = 0; j < dss[i].copyno; j++) {
 					Element datasetElement = rootElement.addElement("dataset");
 					datasetElement.addElement("name").setText(dss[i].name);

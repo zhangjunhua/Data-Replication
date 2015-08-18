@@ -200,6 +200,7 @@ public class DataSets {
 		public void setCreatetask(Task createtask) {
 			if (createtask == null)
 				return;
+			this.createtask=createtask;
 			this.createtask.getOutputDataSets().add(this);
 		}
 

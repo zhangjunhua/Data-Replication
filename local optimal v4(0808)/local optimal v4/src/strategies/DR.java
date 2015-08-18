@@ -79,41 +79,82 @@ public class DR {
 		 * 副本：3
 		 */
 		testA_2015_8_14: {
-			int copyno = 3;
-			for (int ds_num = 5; ds_num <= 30; ds_num += 5) {
-				for (int task_num = 5; task_num <= 30; task_num += 5) {
-					// 初始化初始化DSnum和Tnum
-					R.maxiDSnum = R.miniDSnum = ds_num;
-					R.maxTnum = R.minTnum = task_num;
-					R.maxCopyno = R.minCopyno = 1;
-					R.minDCnum = R.maxDCnum = 9;
-
-					readandwrite.readConfiguration();
-					CreateRandomData.newfolderandrstconf();
-					CreateRandomData.createData();
-					CreateRandomData.writeArgs();
-
-					dataSets = DataSets.getNewInstanceofDataSets();
-					tasks = Tasks.getNewInstanceofTasks();
-					cloud = Cloud.getNewInstanceofCloud();
-
-					System.err.println("ReadData");
-					readandwrite.readDatas(copyno);
-					System.err.println("ReadData finished");
-
-					// 初始化Strategy
-					Strategy.initialize();
-
-					System.err.println("The Heredity Begin!");
-					ArrayList<Strategy.S> CH = Strategy.Heredity();
-					readandwrite.record_2015_8_14(CH, "every_results",
-							"sum_result", ds_num, task_num, sumR_HashMap);
-
-					System.err.println("The Heredity End!");
-				}
-			}
+			// int copyno = 3;
+			// for (int ds_num = 5; ds_num <= 30; ds_num += 5) {
+			// for (int task_num = 5; task_num <= 30; task_num += 5) {
+			// // 初始化初始化DSnum和Tnum
+			// R.maxiDSnum = R.miniDSnum = ds_num;
+			// R.maxTnum = R.minTnum = task_num;
+			// R.maxCopyno = R.minCopyno = 1;
+			// R.minDCnum = R.maxDCnum = 9;
+			//
+			// readandwrite.readConfiguration();
+			// CreateRandomData.newfolderandrstconf();
+			// CreateRandomData.createData();
+			// CreateRandomData.writeArgs();
+			//
+			// dataSets = DataSets.getNewInstanceofDataSets();
+			// tasks = Tasks.getNewInstanceofTasks();
+			// cloud = Cloud.getNewInstanceofCloud();
+			//
+			// System.err.println("ReadData");
+			// readandwrite.readDatas(copyno);
+			// System.err.println("ReadData finished");
+			//
+			// // 初始化Strategy
+			// Strategy.initialize();
+			//
+			// System.err.println("The Heredity Begin!");
+			// ArrayList<Strategy.S> CH = Strategy.Heredity();
+			// readandwrite.record_2015_8_14(CH, "every_results",
+			// "sum_result", ds_num, task_num, sumR_HashMap);
+			//
+			// System.err.println("The Heredity End!");
+			// }
+			// }
 		}
 
+		/**
+		 * 2015年8月17日凌晨
+		 * 
+		 * 这个实验主要面对不同比例的,20,40,60,80
+		 * 
+		 * 数据中心数目9，tasknum：15，datasetnum：15
+		 */
+		testA_2015_8_16: {
+			int copyno = 3;
+			// 初始化初始化DSnum和Tnum
+			R.maxiDSnum = R.miniDSnum = 12;
+			R.maxTnum = R.minTnum = 12;
+			R.maxCopyno = R.minCopyno = 1;
+			R.minDCnum = R.maxDCnum = 9;
+			for (double ratio = 0.2; ratio <= 0.8; ratio += 0.2) {
+				R.setOrigInputDS_ratio(ratio);
+
+				readandwrite.readConfiguration();
+				CreateRandomData.newfolderandrstconf();
+				CreateRandomData.createData();
+				CreateRandomData.writeArgs();
+
+				dataSets = DataSets.getNewInstanceofDataSets();
+				tasks = Tasks.getNewInstanceofTasks();
+				cloud = Cloud.getNewInstanceofCloud();
+
+				System.err.println("ReadData");
+				readandwrite.readDatas(copyno);
+				System.err.println("ReadData finished");
+
+				// 初始化Strategy
+				Strategy.initialize();
+
+				System.err.println("The Heredity Begin!");
+				ArrayList<Strategy.S> CH = Strategy.Heredity();
+				readandwrite.record_2015_8_17(CH, "every_results",
+						"sum_result", ratio, sumR_HashMap);
+
+				System.err.println("The Heredity End!");
+			}
+		}
 	}
 
 	/**
@@ -341,7 +382,8 @@ public class DR {
 		}
 
 		/**
-		 * 将运行结果记录在一个文件里面，并进行统计
+		 * 
+		 * 2015_8_14 将运行结果记录在一个文件里面，并进行统计
 		 * 
 		 * @param Ss
 		 * @param every_result_OPfile_name
@@ -460,6 +502,127 @@ public class DR {
 								+ "\t");
 					}
 					bufferedWriter.newLine();
+				}
+				bufferedWriter.newLine();
+
+				bufferedWriter.flush();
+				bufferedWriter.close();
+				every_result_OPfileFileWriter.close();
+			}
+
+		}
+
+		/**
+		 * 
+		 * 2015_8_17凌晨 将运行结果记录在一个文件里面，并进行统计
+		 * 
+		 * @param Ss
+		 * @param every_result_OPfile_name
+		 * @param analyze_result_OPfile_nameString
+		 * @throws IOException
+		 */
+		public static void record_2015_8_17(ArrayList<Strategy.S> Ss,
+				String every_result_OPfile_name,
+				String analyze_result_OPfile_nameString, double ratio,
+				HashMap<String, Double> sumRHashMap) throws IOException {
+			// 最佳策略
+			Strategy.S S = null;
+			{
+				double timecost = Double.MAX_VALUE;
+				for (strategies.DR.Strategy.S s : Ss) {
+					if (s.getTimecost() < timecost) {
+						timecost = s.getTimecost();
+						S = s;
+					}
+				}
+			}
+			{// 写every_result文件
+				int movetimes = S.getMovetimes();
+				double transcost = S.getTranscost();
+				double timecost = S.getTimecost();
+				// OutputOneSolution(S, "result" + param);
+				File every_result_OPfile = new File(R.FOLDER
+						+ every_result_OPfile_name + ".txt");
+				FileWriter every_result_OPfileFileWriter = new FileWriter(
+						every_result_OPfile, true);
+
+				BufferedWriter bufferedWriter = new BufferedWriter(
+						every_result_OPfileFileWriter);
+				bufferedWriter.write(R.configerationhMap
+						.get("outputdatafolder"));
+				bufferedWriter.newLine();
+				bufferedWriter.write("ratio:" + ratio);
+				bufferedWriter.write("timecost = ");
+				bufferedWriter.write("" + timecost);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("movetimes = ");
+				bufferedWriter.write("" + movetimes);
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("transcost = ");
+				bufferedWriter.write("" + transcost);
+				bufferedWriter.newLine();
+				bufferedWriter.newLine();
+				bufferedWriter.flush();
+				bufferedWriter.close();
+				every_result_OPfileFileWriter.close();
+			}
+			{// 对hashmap进行变动
+				if (sumRHashMap.get(ratio + " " + "MoveTimes") == null) {
+					sumRHashMap.put(ratio + " " + "MoveTimes", 0.0);
+				}
+				if (sumRHashMap.get(ratio + " " + "TransCost") == null) {
+					sumRHashMap.put(ratio + " " + "TransCost", 0.0);
+				}
+				if (sumRHashMap.get(ratio + " " + "TimeCost") == null) {
+					sumRHashMap.put(ratio + " " + "TimeCost", 0.0);
+				}
+				sumRHashMap.put(
+						ratio + " " + "MoveTimes",
+						sumRHashMap.get(ratio + " " + "MoveTimes")
+								+ S.getMovetimes());
+				sumRHashMap.put(
+						ratio + " " + "TransCost",
+						sumRHashMap.get(ratio + " " + "TransCost")
+								+ S.getTranscost());
+				sumRHashMap.put(
+						ratio + " " + "TimeCost",
+						sumRHashMap.get(ratio + " " + "TimeCost")
+								+ S.getTimecost());
+			}
+			{// 写sumresult文件
+
+				// OutputOneSolution(S, "result" + param);
+				File every_result_OPfile = new File(R.FOLDER
+						+ analyze_result_OPfile_nameString + ".txt");
+				FileWriter every_result_OPfileFileWriter = new FileWriter(
+						every_result_OPfile);
+
+				BufferedWriter bufferedWriter = new BufferedWriter(
+						every_result_OPfileFileWriter);
+
+				bufferedWriter.write("movetimes：\n");
+				for (double ratiok = 0.2; ratiok <= 0.8; ratiok += 0.2) {
+					bufferedWriter.write(sumRHashMap.get(ratiok + " "
+							+ "MoveTimes")
+							+ "\t");
+				}
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("Transcost：\n");
+				for (double ratiok = 0.2; ratiok <= 0.8; ratiok += 0.2) {
+					bufferedWriter.write(sumRHashMap.get(ratiok + " "
+							+ "TransCost")
+							+ "\t");
+				}
+				bufferedWriter.newLine();
+
+				bufferedWriter.write("TimeCost：\n");
+				for (double ratiok = 0.2; ratiok <= 0.8; ratiok += 0.2) {
+					bufferedWriter.write(sumRHashMap.get(ratiok + " "
+							+ "TimeCost")
+							+ "\t");
 				}
 				bufferedWriter.newLine();
 

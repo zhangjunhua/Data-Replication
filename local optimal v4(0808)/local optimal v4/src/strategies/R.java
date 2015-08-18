@@ -32,6 +32,7 @@ public final class R {
 	public static double variation = 0.23423242;
 	public static double chiasma = 0.88738278;
 
+	public static double origInputDS_ratio = 0.2;
 	// 程序退出控制条件
 	public static double variance = 0.001;
 	public static double speed = 0.001;
@@ -52,6 +53,21 @@ public final class R {
 	public static HashMap<String, String> configerationhMap = null;
 	public static String inputFolder = null;
 	public static String outputFolder = null;
+
+	/**
+	 * @return the origInputDS_ratio
+	 */
+	public static double getOrigInputDS_ratio() {
+		return origInputDS_ratio;
+	}
+
+	/**
+	 * @param origInputDS_ratio
+	 *            the origInputDS_ratio to set
+	 */
+	public static void setOrigInputDS_ratio(double origInputDS_ratio) {
+		R.origInputDS_ratio = origInputDS_ratio;
+	}
 
 	/**
 	 * @return the maxDCnum
@@ -240,6 +256,295 @@ public final class R {
 	 */
 	public static int getMaxGen() {
 		return maxGen;
+	}
+
+	/**
+	 * @param maxDCnum
+	 *            the maxDCnum to set
+	 */
+	public static void setMaxDCnum(int maxDCnum) {
+		R.maxDCnum = maxDCnum;
+	}
+
+	/**
+	 * @param minDCnum
+	 *            the minDCnum to set
+	 */
+	public static void setMinDCnum(int minDCnum) {
+		R.minDCnum = minDCnum;
+	}
+
+	/**
+	 * @param maxDCstorage
+	 *            the maxDCstorage to set
+	 */
+	public static void setMaxDCstorage(double maxDCstorage) {
+		R.maxDCstorage = maxDCstorage;
+	}
+
+	/**
+	 * @param minDCstorage
+	 *            the minDCstorage to set
+	 */
+	public static void setMinDCstorage(double minDCstorage) {
+		R.minDCstorage = minDCstorage;
+	}
+
+	/**
+	 * @param maxBandWidth
+	 *            the maxBandWidth to set
+	 */
+	public static void setMaxBandWidth(double maxBandWidth) {
+		R.maxBandWidth = maxBandWidth;
+	}
+
+	/**
+	 * @param minBandWith
+	 *            the minBandWith to set
+	 */
+	public static void setMinBandWith(double minBandWith) {
+		R.minBandWith = minBandWith;
+	}
+
+	/**
+	 * @param maxiDSnum
+	 *            the maxiDSnum to set
+	 */
+	public static void setMaxiDSnum(int maxiDSnum) {
+		R.maxiDSnum = maxiDSnum;
+	}
+
+	/**
+	 * @param miniDSnum
+	 *            the miniDSnum to set
+	 */
+	public static void setMiniDSnum(int miniDSnum) {
+		R.miniDSnum = miniDSnum;
+	}
+
+	/**
+	 * @param minDsSize
+	 *            the minDsSize to set
+	 */
+	public static void setMinDsSize(double minDsSize) {
+		R.minDsSize = minDsSize;
+	}
+
+	/**
+	 * @param maxDsSize
+	 *            the maxDsSize to set
+	 */
+	public static void setMaxDsSize(double maxDsSize) {
+		R.maxDsSize = maxDsSize;
+	}
+
+	/**
+	 * @param maxCopyno
+	 *            the maxCopyno to set
+	 */
+	public static void setMaxCopyno(int maxCopyno) {
+		R.maxCopyno = maxCopyno;
+	}
+
+	/**
+	 * @param minCopyno
+	 *            the minCopyno to set
+	 */
+	public static void setMinCopyno(int minCopyno) {
+		R.minCopyno = minCopyno;
+	}
+
+	/**
+	 * @param maxTnum
+	 *            the maxTnum to set
+	 */
+	public static void setMaxTnum(int maxTnum) {
+		R.maxTnum = maxTnum;
+	}
+
+	/**
+	 * @param minTnum
+	 *            the minTnum to set
+	 */
+	public static void setMinTnum(int minTnum) {
+		R.minTnum = minTnum;
+	}
+
+	/**
+	 * @param maxIDS
+	 *            the maxIDS to set
+	 */
+	public static void setMaxIDS(int maxIDS) {
+		R.maxIDS = maxIDS;
+	}
+
+	/**
+	 * @param minIDS
+	 *            the minIDS to set
+	 */
+	public static void setMinIDS(int minIDS) {
+		R.minIDS = minIDS;
+	}
+
+	/**
+	 * @param lamda
+	 *            the lamda to set
+	 */
+	public static void setLamda(double lamda) {
+		R.lamda = lamda;
+	}
+
+	/**
+	 * @param variation
+	 *            the variation to set
+	 */
+	public static void setVariation(double variation) {
+		R.variation = variation;
+	}
+
+	/**
+	 * @param chiasma
+	 *            the chiasma to set
+	 */
+	public static void setChiasma(double chiasma) {
+		R.chiasma = chiasma;
+	}
+
+	/**
+	 * @param variance
+	 *            the variance to set
+	 */
+	public static void setVariance(double variance) {
+		R.variance = variance;
+	}
+
+	/**
+	 * @param speed
+	 *            the speed to set
+	 */
+	public static void setSpeed(double speed) {
+		R.speed = speed;
+	}
+
+	/**
+	 * @param var_and_speed_Gen
+	 *            the var_and_speed_Gen to set
+	 */
+	public static void setVar_and_speed_Gen(int var_and_speed_Gen) {
+		R.var_and_speed_Gen = var_and_speed_Gen;
+	}
+
+	/**
+	 * @param speed_Gen
+	 *            the speed_Gen to set
+	 */
+	public static void setSpeed_Gen(int speed_Gen) {
+		R.speed_Gen = speed_Gen;
+	}
+
+	/**
+	 * @param minGen
+	 *            the minGen to set
+	 */
+	public static void setMinGen(int minGen) {
+		R.minGen = minGen;
+	}
+
+	/**
+	 * @param genSize
+	 *            the genSize to set
+	 */
+	public static void setGenSize(int genSize) {
+		R.genSize = genSize;
+	}
+
+	/**
+	 * @param popSize
+	 *            the popSize to set
+	 */
+	public static void setPopSize(int popSize) {
+		R.popSize = popSize;
+	}
+
+	/**
+	 * @param maxGen
+	 *            the maxGen to set
+	 */
+	public static void setMaxGen(int maxGen) {
+		R.maxGen = maxGen;
+	}
+
+	/**
+	 * @param fOLDER
+	 *            the fOLDER to set
+	 */
+	public static void setFOLDER(String fOLDER) {
+		FOLDER = fOLDER;
+	}
+
+	/**
+	 * @param cONFIGURATION
+	 *            the cONFIGURATION to set
+	 */
+	public static void setCONFIGURATION(String cONFIGURATION) {
+		CONFIGURATION = cONFIGURATION;
+	}
+
+	/**
+	 * @param dATASETS
+	 *            the dATASETS to set
+	 */
+	public static void setDATASETS(String dATASETS) {
+		DATASETS = dATASETS;
+	}
+
+	/**
+	 * @param nDATASETS
+	 *            the nDATASETS to set
+	 */
+	public static void setNDATASETS(String nDATASETS) {
+		NDATASETS = nDATASETS;
+	}
+
+	/**
+	 * @param cONTROL
+	 *            the cONTROL to set
+	 */
+	public static void setCONTROL(String cONTROL) {
+		CONTROL = cONTROL;
+	}
+
+	/**
+	 * @param cLOUD
+	 *            the cLOUD to set
+	 */
+	public static void setCLOUD(String cLOUD) {
+		CLOUD = cLOUD;
+	}
+
+	/**
+	 * @param configerationhMap
+	 *            the configerationhMap to set
+	 */
+	public static void setConfigerationhMap(
+			HashMap<String, String> configerationhMap) {
+		R.configerationhMap = configerationhMap;
+	}
+
+	/**
+	 * @param inputFolder
+	 *            the inputFolder to set
+	 */
+	public static void setInputFolder(String inputFolder) {
+		R.inputFolder = inputFolder;
+	}
+
+	/**
+	 * @param outputFolder
+	 *            the outputFolder to set
+	 */
+	public static void setOutputFolder(String outputFolder) {
+		R.outputFolder = outputFolder;
 	}
 
 	/**
