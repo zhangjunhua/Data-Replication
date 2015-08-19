@@ -45,7 +45,74 @@ public class DR {
 	public static void main(String[] args) throws IOException {
 		new Thread(new exit()).start();
 		while (!exit) {
-			test2015_8_19();
+			test2015_8_19_afternoon();
+		}
+	}
+
+	/**
+	 * 2014_11_20日
+	 * 
+	 * hadoop 和 遗传算法 的比较 科学工作流规模不同，其它相同
+	 * 
+	 * -------------------------------------------------
+	 * 
+	 * 2015_8_19
+	 * 
+	 * 基于2014年11月20日的不同规模下的 Hadoop vs 遗传算法 的实验，调整实验参数，来重新做这个实验。用来论证在较多的task
+	 * 数目的情况下，实验结果依然令人满意。
+	 * 
+	 * 参数设置：副本数：3，数据中心数：9，数据集数目[5,8,10,13,15]，任务数：【10:5:30】
+	 * 
+	 * @throws IOException
+	 */
+	public static void test2015_8_19_afternoon() throws IOException {
+		{
+			/*
+			 * 数据集：[5,8,10,13,15]任务数:【10:5:30】 数据副本数：3 数据中心数：9
+			 */
+			R.minDCnum = R.maxDCnum = 9;
+			R.maxCopyno = R.minCopyno = 1;
+			int copyno = 3;
+			for (int i = 0; i < 10; i++) {
+				for (int Tn = 10; Tn <= 30; Tn += 5) {
+					// 初始化数据
+					{
+						R.maxTnum = R.minTnum = Tn;
+						if (Tn % 2 == 0) {
+							R.miniDSnum = R.maxiDSnum = Tn / 2;
+						} else {
+							R.miniDSnum = Tn / 2;
+							R.maxiDSnum = R.miniDSnum + 1;
+						}
+					}
+
+					readandwrite.readConfiguration();
+					CreateRandomData.newfolderandrstconf();
+					CreateRandomData.createData();
+					CreateRandomData.writeArgs();
+
+					dataSets = DataSets.getNewInstanceofDataSets();
+					tasks = Tasks.getNewInstanceofTasks();
+					cloud = Cloud.getNewInstanceofCloud();
+
+					System.err.println("ReadData");
+					readandwrite.readDatas(copyno);
+					System.err.println("ReadData finished");
+
+					// 初始化Strategy
+					Strategy.initialize();
+
+					System.err.println("The Heredity Begin!");
+					ArrayList<Strategy.S> CH = Strategy.Heredity();
+					readandwrite.OutputTheResult(CH, Tn);
+					System.err.println("The Heredity End!");
+
+					Strategy.S s = Strategy.S.getRandomS();
+					Strategy.TimeAndTransAndMoveCosttotal_withoutSc(s);
+
+					readandwrite.OutputOneSolution(s, "rand" + Tn);
+				}
+			}
 		}
 	}
 
