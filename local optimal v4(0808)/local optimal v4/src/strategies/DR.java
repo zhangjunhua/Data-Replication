@@ -51,6 +51,83 @@ public class DR {
 	}
 
 	/**
+	 * 时间2015年8月23日，
+	 * 
+	 * 张俊华于凌晨
+	 * 
+	 * 这次实验主要是解决every step need 1~3 original
+	 * datasets可能会对实验造成影响的问题。（reviewer提出来的）
+	 * 
+	 * 这次实验的方法就是在every step的需要较少original datasets的情况下，对不同size的科学工作流genetic 和
+	 * Hadoop算法之间的对比
+	 * 
+	 * 实验具体参数设置如下：
+	 * 
+	 * datacenter：9
+	 * 
+	 * original datasets： [5,8,10,13,15]
+	 * 
+	 * task number：【10:5:30】
+	 * 
+	 * 第一个task 需要1~3个 original 数据集，后面的task 每个需要0~1个original数据集。
+	 * 
+	 * 后面的每个task需要1~3个generated数据集。
+	 * 
+	 * 这个不是sequence的。
+	 * 
+	 * @throws IOException
+	 * 
+	 */
+	public static void test2015_8_22() throws IOException {
+		/*
+		 * 数据集：[5,8,10,13,15] 任务数:【10:5:30】 数据副本数：3 数据中心数：9
+		 */
+		R.minDCnum = R.maxDCnum = 9;
+		R.maxCopyno = R.minCopyno = 1;
+		int copyno = 3;
+		for (int i = 0; i < 10; i++) {
+			for (int Tn = 10; Tn <= 30; Tn += 5) {
+				// 初始化数据
+				{
+					R.maxTnum = R.minTnum = Tn;
+					if (Tn % 2 == 0) {
+						R.miniDSnum = R.maxiDSnum = Tn / 2;
+					} else {
+						R.miniDSnum = Tn / 2;
+						R.maxiDSnum = R.miniDSnum + 1;
+					}
+				}
+
+				readandwrite.readConfiguration();
+				CreateRandomData.newfolderandrstconf();
+				CreateRandomData.createData_2015_8_22();
+				CreateRandomData.writeArgs();
+
+				dataSets = DataSets.getNewInstanceofDataSets();
+				tasks = Tasks.getNewInstanceofTasks();
+				cloud = Cloud.getNewInstanceofCloud();
+
+				System.err.println("ReadData");
+				readandwrite.readDatas(copyno);
+				System.err.println("ReadData finished");
+
+				// 初始化Strategy
+				Strategy.initialize();
+
+				System.err.println("The Heredity Begin!");
+				ArrayList<Strategy.S> CH = Strategy.Heredity();
+				readandwrite.OutputTheResult(CH, Tn);
+				System.err.println("The Heredity End!");
+
+				Strategy.S s = Strategy.S.getRandomS();
+				Strategy.TimeAndTransAndMoveCosttotal_withoutSc(s);
+
+				readandwrite.OutputOneSolution(s, "rand" + Tn);
+			}
+		}
+	}
+
+	/**
 	 * 2015年8月13日，张俊华 1.这次实验主要是8月data replica 论文的二审后，有一个minor
 	 * revision，提到输入数据集太多， 而我们之前的实验都是数据集的个数是任务数目的2倍，这个感觉跟实际的科学应用不太一样。
 	 * 2.另一方面，reviewer1就讲到关于每一步都使用input dataset的这种情况。every step a task needs
