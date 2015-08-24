@@ -46,11 +46,13 @@ public class DR {
 	public static void main(String[] args) throws IOException {
 		new Thread(new exit()).start();
 		while (!exit) {
-			test2015_8_13();
+			test2015_8_22();
 		}
 	}
 
 	/**
+	 * 基于2014_11_20的
+	 * 
 	 * 时间2015年8月23日，
 	 * 
 	 * 张俊华于凌晨
